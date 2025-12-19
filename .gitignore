@@ -70,6 +70,24 @@ crashlytics-build.properties
 *.app
 *.exe
 
+# Unity Build Output (IL2CPP, etc.)
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+*_BurstDebugInformation_DoNotShip/
+
+# ========= #
+#  Security #
+# ========= #
+
+*.keystore
+*.keystore.keystore
+*.jks
+
+# ============= #
+#  Crash Logs   #
+# ============= #
+
+mono_crash*.json
+
 # =============== #
 #  Code Coverage  #
 # =============== #
