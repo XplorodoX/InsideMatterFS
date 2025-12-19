@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using InsideMatter.Molecule;
+using InsideMatter.UI;
+using InsideMatter.Effects;
 
 namespace InsideMatter.Puzzle
 {
@@ -18,8 +20,14 @@ namespace InsideMatter.Puzzle
         [Tooltip("Das zu spielende Level")]
         public PuzzleLevel currentLevel;
         
+        [Tooltip("Alle verfügbaren Level")]
+        public List<PuzzleLevel> allLevels = new List<PuzzleLevel>();
+        
         [Tooltip("Aktuelle Aufgabe (Index in moleculesToBuild)")]
         private int currentTaskIndex = 0;
+        
+        [Tooltip("Aktueller Level-Index")]
+        private int currentLevelIndex = 0;
         
         [Header("Komponenten")]
         [Tooltip("Validator für Molekül-Prüfung")]
@@ -27,6 +35,18 @@ namespace InsideMatter.Puzzle
         
         [Tooltip("Spawner für Atome")]
         public AtomSpawner atomSpawner;
+        
+        [Tooltip("Validierungszone auf dem Abgabe-Tisch")]
+        public ValidationZone validationZone;
+        
+        [Tooltip("Tafel-UI für Aufgaben-Anzeige")]
+        public ChalkboardUI chalkboardUI;
+        
+        [Tooltip("Level-Abschluss-Dialog")]
+        public LevelCompleteDialog levelCompleteDialog;
+        
+        [Tooltip("Feedback-Effekte")]
+        public FeedbackEffects feedbackEffects;
         
         [Header("Status")]
         [Tooltip("Aktueller Score")]
@@ -146,11 +166,19 @@ namespace InsideMatter.Puzzle
             }
             
             UnityEngine.Debug.Log($"Neue Aufgabe: {CurrentTask.moleculeName}");
+            
+            // Tafel aktualisieren
+            if (chalkboardUI != null)
+            {
+                chalkboardUI.ResetColors();
+                chalkboardUI.ShowTask(CurrentTask, currentTaskIndex + 1);
+            }
+            
             OnTaskStarted?.Invoke(CurrentTask);
         }
         
         /// <summary>
-        /// Prüft ob das aktuelle Molekül korrekt ist
+        /// Prüft ob das Molekül in der Validierungszone korrekt ist
         /// </summary>
         public void CheckCurrentMolecule()
         {
@@ -160,16 +188,37 @@ namespace InsideMatter.Puzzle
                 return;
             }
             
-            // Finde alle Atome in der Szene
-            Atom[] allAtoms = FindObjectsByType<Atom>(FindObjectsSortMode.None);
-            List<Atom> atomList = new List<Atom>(allAtoms);
+            // Prüfe ob ValidationZone existiert und Atome enthält
+            List<List<Atom>> molecules;
+            Vector3 effectPosition = transform.position;
             
-            // Finde zusammenhängende Moleküle
-            List<List<Atom>> molecules = validator.FindMolecules(atomList);
+            if (validationZone != null)
+            {
+                if (!validationZone.HasMolecule)
+                {
+                    UnityEngine.Debug.Log("Keine Atome in der Validierungszone!");
+                    validationZone.ShowError("Platziere zuerst dein Molekül hier!");
+                    return;
+                }
+                
+                molecules = validationZone.GetMoleculesInZone();
+                effectPosition = validationZone.transform.position;
+            }
+            else
+            {
+                // Fallback: Alle Atome in der Szene prüfen
+                Atom[] allAtoms = FindObjectsByType<Atom>(FindObjectsSortMode.None);
+                List<Atom> atomList = new List<Atom>(allAtoms);
+                molecules = validator.FindMolecules(atomList);
+            }
             
             if (molecules.Count == 0)
             {
-                UnityEngine.Debug.Log("Keine Moleküle gefunden!");
+                UnityEngine.Debug.Log("Keine zusammenhängenden Moleküle gefunden!");
+                if (validationZone != null)
+                {
+                    validationZone.ShowError("Atome sind nicht verbunden!");
+                }
                 return;
             }
             
@@ -199,18 +248,18 @@ namespace InsideMatter.Puzzle
             // Auswertung
             if (bestResult != null && bestResult.isValid)
             {
-                CompleteTask(bestResult, bestMolecule);
+                CompleteTask(bestResult, bestMolecule, effectPosition);
             }
             else
             {
-                FailTask(bestResult);
+                FailTask(bestResult, effectPosition);
             }
         }
         
         /// <summary>
         /// Aufgabe erfolgreich abgeschlossen
         /// </summary>
-        private void CompleteTask(ValidationResult result, List<Atom> molecule)
+        private void CompleteTask(ValidationResult result, List<Atom> molecule, Vector3 effectPosition)
         {
             UnityEngine.Debug.Log($"✅ Aufgabe erfolgreich: {result.moleculeName} (+{result.score} Punkte)");
             
@@ -220,16 +269,39 @@ namespace InsideMatter.Puzzle
             OnScoreUpdate?.Invoke(currentScore);
             OnTaskCompleted?.Invoke(result);
             
-            // Molekül markieren oder entfernen
+            // Visuelle Effekte
+            if (feedbackEffects != null)
+            {
+                feedbackEffects.PlaySuccessEffect(effectPosition);
+            }
+            
+            // ValidationZone Feedback
+            if (validationZone != null)
+            {
+                validationZone.ShowSuccess($"✓ {result.moleculeName} richtig!");
+            }
+            
+            // Tafel aktualisieren
+            if (chalkboardUI != null)
+            {
+                chalkboardUI.ShowSuccess($"{result.moleculeName} erfolgreich gebaut!");
+            }
+            
+            // Molekül markieren
             MarkMoleculeAsComplete(molecule);
             
             // Nächste Aufgabe
             currentTaskIndex++;
             
-            if (currentLevel.sequentialOrder)
+            // Level komplett?
+            if (currentTaskIndex >= currentLevel.moleculesToBuild.Count)
+            {
+                CompleteLevel();
+            }
+            else if (currentLevel.sequentialOrder)
             {
                 // Automatisch nächste Aufgabe starten
-                StartCoroutine(StartNextTaskDelayed(2f));
+                StartCoroutine(StartNextTaskDelayed(3f));
             }
             else
             {
@@ -244,9 +316,29 @@ namespace InsideMatter.Puzzle
         /// <summary>
         /// Aufgabe fehlgeschlagen
         /// </summary>
-        private void FailTask(ValidationResult result)
+        private void FailTask(ValidationResult result, Vector3 effectPosition)
         {
-            UnityEngine.Debug.Log($"❌ Aufgabe fehlgeschlagen: {result.GetErrorMessage()}");
+            string errorMsg = result?.GetErrorMessage() ?? "Unbekannter Fehler";
+            UnityEngine.Debug.Log($"❌ Aufgabe fehlgeschlagen: {errorMsg}");
+            
+            // Visuelle Effekte
+            if (feedbackEffects != null)
+            {
+                feedbackEffects.PlayErrorEffect(effectPosition);
+            }
+            
+            // ValidationZone Feedback
+            if (validationZone != null)
+            {
+                validationZone.ShowError(errorMsg);
+            }
+            
+            // Tafel aktualisieren
+            if (chalkboardUI != null)
+            {
+                chalkboardUI.ShowError(errorMsg);
+            }
+            
             OnTaskFailed?.Invoke(result);
         }
         
@@ -257,7 +349,67 @@ namespace InsideMatter.Puzzle
         {
             isLevelActive = false;
             UnityEngine.Debug.Log($"🎉 Level abgeschlossen! Score: {currentScore}/{currentLevel.maxScore}");
+            
+            // Level-Abschluss-Dialog anzeigen
+            if (levelCompleteDialog != null)
+            {
+                bool hasNextLevel = (currentLevelIndex + 1) < allLevels.Count;
+                levelCompleteDialog.ShowSuccess(
+                    currentLevel.levelName,
+                    currentScore,
+                    hasNextLevel
+                );
+                
+                // Events für Dialog-Buttons verbinden
+                levelCompleteDialog.OnNextLevelPressed.RemoveAllListeners();
+                levelCompleteDialog.OnRetryPressed.RemoveAllListeners();
+                levelCompleteDialog.OnMenuPressed.RemoveAllListeners();
+                
+                levelCompleteDialog.OnNextLevelPressed.AddListener(StartNextLevel);
+                levelCompleteDialog.OnRetryPressed.AddListener(RestartLevel);
+                levelCompleteDialog.OnMenuPressed.AddListener(ReturnToMenu);
+            }
+            
             OnLevelCompleted?.Invoke();
+        }
+        
+        /// <summary>
+        /// Startet das nächste Level
+        /// </summary>
+        public void StartNextLevel()
+        {
+            currentLevelIndex++;
+            
+            if (currentLevelIndex < allLevels.Count)
+            {
+                StartLevel(allLevels[currentLevelIndex]);
+            }
+            else
+            {
+                UnityEngine.Debug.Log("Alle Level abgeschlossen!");
+            }
+        }
+        
+        /// <summary>
+        /// Zurück zum Hauptmenü
+        /// </summary>
+        public void ReturnToMenu()
+        {
+            isLevelActive = false;
+            
+            // Alle Atome entfernen
+            Atom[] atoms = FindObjectsByType<Atom>(FindObjectsSortMode.None);
+            foreach (var atom in atoms)
+            {
+                Destroy(atom.gameObject);
+            }
+            
+            // MainMenuManager suchen und Menü anzeigen
+            var menuManager = FindFirstObjectByType<MainMenuManager>();
+            if (menuManager != null)
+            {
+                menuManager.ShowMenu();
+            }
         }
         
         /// <summary>
