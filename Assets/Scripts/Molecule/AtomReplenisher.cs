@@ -3,12 +3,14 @@ using System.Collections;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables; // Falls XRI 3.x
 using InsideMatter.Interaction; // Für VRAtomGrab
+using TMPro;
 
 namespace InsideMatter.Molecule
 {
     /// <summary>
     /// Spawns an atom and ensures there is always one available.
     /// If the current atom is taken away, a new one is spawned.
+    /// Displays a label showing what element this tray contains.
     /// </summary>
     public class AtomReplenisher : MonoBehaviour
     {
@@ -18,8 +20,22 @@ namespace InsideMatter.Molecule
         public float spawnCheckRadius = 0.05f; // Kleinerer Radius, damit es nicht so leicht blockiert wird
         public float respawnDelay = 1.0f; // Wartezeit bevor neu gespawnt wird
 
+        [Header("Label Einstellungen")]
+        [Tooltip("Zeigt ein 3D-Label mit dem Elementnamen über dem Tray")]
+        public bool showLabel = true;
+        
+        [Tooltip("Höhe des Labels über dem Tray")]
+        public float labelHeight = 0.25f;
+        
+        [Tooltip("Schriftgröße des Labels")]
+        public float labelFontSize = 0.8f;
+        
+        [Tooltip("Farbe des Label-Textes")]
+        public Color labelColor = Color.white;
+
         private GameObject currentAtom;
         private bool isRespawning = false;
+        private TextMeshPro labelText;
 
         void Start()
         {

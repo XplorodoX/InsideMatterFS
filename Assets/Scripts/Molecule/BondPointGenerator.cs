@@ -168,26 +168,39 @@ namespace InsideMatter.Molecule
             collider.isTrigger = true;
             collider.radius = 0.2f;
             
-            // Kleines visuelles Gizmo (optional, nur im Editor sichtbar)
-            #if UNITY_EDITOR
+            // Kleines visuelles Gizmo für BondPoint (gelb, halbtransparent)
             GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             visual.name = "Visual";
             visual.transform.SetParent(bpObj.transform);
             visual.transform.localPosition = Vector3.zero;
             visual.transform.localScale = Vector3.one * 0.1f;
             
-            // Material transparent machen
+            // Material gelb und transparent machen
             var renderer = visual.GetComponent<Renderer>();
             if (renderer != null)
             {
                 Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = new Color(1f, 1f, 0f, 0.3f);
+                // Gelbe Farbe mit leichter Transparenz
+                mat.SetColor("_BaseColor", new Color(1f, 1f, 0f, 0.7f));
+                mat.SetFloat("_Surface", 1); // 0 = Opaque, 1 = Transparent
+                mat.SetFloat("_Blend", 0);   // 0 = Alpha, 1 = Premultiply
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                mat.renderQueue = 3000;
                 renderer.material = mat;
             }
             
             // Collider vom Visual entfernen
-            Object.DestroyImmediate(visual.GetComponent<Collider>());
-            #endif
+            var visualCollider = visual.GetComponent<Collider>();
+            if (visualCollider != null)
+            {
+                if (Application.isPlaying)
+                    Object.Destroy(visualCollider);
+                else
+                    Object.DestroyImmediate(visualCollider);
+            }
         }
     }
 }
