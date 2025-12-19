@@ -64,30 +64,20 @@ namespace InsideMatter.Molecule
         
         void Update()
         {
-            // Snap-Timer nur wenn NICHT per VR gegriffen wird
-            // Bei VR übernimmt VRAtomGrab die Preview-Logik
-            if (IsParentOrNearbyGrabbedByVR())
+            // WICHTIG: Bindungen sind NUR möglich, wenn mindestens ein Atom gegriffen wird!
+            // Automatisches Binden ohne VR-Griff ist deaktiviert.
+            
+            // Wenn kein Atom gegriffen wird, reset und ignorieren
+            if (!IsParentOrNearbyGrabbedByVR())
             {
-                // VR-Modus: Preview wird von VRAtomGrab gesteuert
                 nearbyTimer = 0f;
+                nearbyBondPoint = null;
                 return;
             }
-
-            // Desktop-Modus: Automatisches Snapping wie bisher
-            if (nearbyBondPoint != null && !occupied)
-            {
-                nearbyTimer += Time.deltaTime;
-                
-                if (nearbyTimer >= snapDelay)
-                {
-                    TryCreateBond(nearbyBondPoint);
-                    nearbyTimer = 0f;
-                }
-            }
-            else
-            {
-                nearbyTimer = 0f;
-            }
+            
+            // VR-Modus: Preview und Bonding wird von VRAtomGrab gesteuert
+            // Hier nur Timer reset, da VRAtomGrab die eigentliche Logik übernimmt
+            nearbyTimer = 0f;
         }
 
         /// <summary>
@@ -113,22 +103,42 @@ namespace InsideMatter.Molecule
         }
         
         private void OnTriggerEnter(Collider other)
-    {
-        // Only trigger when close to another BondPoint
-        BondPoint otherBondPoint = other.GetComponent<BondPoint>();
-        if (otherBondPoint != null && otherBondPoint != this && !occupied && !otherBondPoint.Occupied)
         {
-            // Check if parent atoms have free bonds
-            if (parentAtom != null && otherBondPoint.parentAtom != null &&
-                parentAtom.HasFreeBond && otherBondPoint.parentAtom.HasFreeBond)
+            // WICHTIG: Nur reagieren wenn mindestens ein Atom gegriffen wird!
+            if (!IsParentOrNearbyGrabbedByVR())
             {
-                nearbyBondPoint = otherBondPoint;
+                return;
+            }
+            
+            // Only trigger when close to another BondPoint
+            BondPoint otherBondPoint = other.GetComponent<BondPoint>();
+            if (otherBondPoint != null && otherBondPoint != this && !occupied && !otherBondPoint.Occupied)
+            {
+                // Prüfen ob das andere Atom auch gerade in einer VR-Hand ist
+                // ODER ob unser Atom gegriffen wird (dann kann das andere lose sein)
+                var ourVRGrab = parentAtom?.GetComponent<InsideMatter.Interaction.VRAtomGrab>();
+                var otherVRGrab = otherBondPoint.parentAtom?.GetComponent<InsideMatter.Interaction.VRAtomGrab>();
                 
-                // Trigger haptic feedback if VR atom is grabbed
-                NotifyVRGrabOfBond();
+                bool ourAtomIsGrabbed = (ourVRGrab != null && ourVRGrab.IsGrabbed);
+                bool otherAtomIsGrabbed = (otherVRGrab != null && otherVRGrab.IsGrabbed);
+                
+                // Mindestens eines der beiden Atome muss gegriffen sein
+                if (!ourAtomIsGrabbed && !otherAtomIsGrabbed)
+                {
+                    return;
+                }
+                
+                // Check if parent atoms have free bonds
+                if (parentAtom != null && otherBondPoint.parentAtom != null &&
+                    parentAtom.HasFreeBond && otherBondPoint.parentAtom.HasFreeBond)
+                {
+                    nearbyBondPoint = otherBondPoint;
+                    
+                    // Trigger haptic feedback if VR atom is grabbed
+                    NotifyVRGrabOfBond();
+                }
             }
         }
-    }
     
     /// <summary>
     /// Notify VR grab component about bond creation for haptic feedback

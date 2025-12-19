@@ -39,12 +39,98 @@ namespace InsideMatter.Molecule
 
         void Start()
         {
+            // Label erstellen (vor dem Spawn, damit es sofort sichtbar ist)
+            if (showLabel)
+            {
+                CreateLabel();
+            }
+            
             // Direkt am Anfang spawnen (ohne Delay)
             SpawnNow();
+        }
+        
+        /// <summary>
+        /// Erstellt ein 3D-Text-Label über der Petrischale mit dem Elementnamen
+        /// </summary>
+        private void CreateLabel()
+        {
+            // Element-Info aus dem Prefab auslesen
+            string elementSymbol = "?";
+            string elementName = "Unbekannt";
+            Color elementColor = Color.white;
+            
+            if (atomPrefab != null)
+            {
+                Atom prefabAtom = atomPrefab.GetComponent<Atom>();
+                if (prefabAtom != null)
+                {
+                    elementSymbol = prefabAtom.element;
+                    elementColor = prefabAtom.atomColor;
+                    elementName = GetElementName(elementSymbol);
+                }
+            }
+            
+            // Label GameObject erstellen
+            GameObject labelObj = new GameObject($"Label_{elementSymbol}");
+            labelObj.transform.SetParent(transform);
+            labelObj.transform.localPosition = new Vector3(0, labelHeight, 0);
+            labelObj.transform.localRotation = Quaternion.identity;
+            
+            // TextMeshPro hinzufügen
+            labelText = labelObj.AddComponent<TextMeshPro>();
+            labelText.text = $"{elementName}\n<size=150%><b>{elementSymbol}</b></size>";
+            labelText.fontSize = labelFontSize;
+            labelText.color = labelColor;
+            labelText.alignment = TextAlignmentOptions.Center;
+            labelText.enableAutoSizing = false;
+            
+            // RectTransform für korrekte Größe
+            RectTransform rect = labelObj.GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(2f, 1f);
+            
+            // Optional: Leichten farbigen Hintergrund passend zum Element
+            // Das Label dreht sich zum Spieler (Billboard-Effekt wird in Update gemacht)
+        }
+        
+        /// <summary>
+        /// Gibt den deutschen Namen für ein Element-Symbol zurück
+        /// </summary>
+        private string GetElementName(string symbol)
+        {
+            switch (symbol.ToUpper())
+            {
+                case "H": return "Wasserstoff";
+                case "C": return "Kohlenstoff";
+                case "O": return "Sauerstoff";
+                case "N": return "Stickstoff";
+                case "S": return "Schwefel";
+                case "P": return "Phosphor";
+                case "CL": return "Chlor";
+                case "F": return "Fluor";
+                case "BR": return "Brom";
+                case "I": return "Iod";
+                case "NA": return "Natrium";
+                case "K": return "Kalium";
+                case "CA": return "Calcium";
+                case "MG": return "Magnesium";
+                case "FE": return "Eisen";
+                default: return symbol;
+            }
         }
 
         void Update()
         {
+            // Billboard-Effekt: Label zeigt immer zur Kamera
+            if (labelText != null)
+            {
+                Camera mainCam = Camera.main;
+                if (mainCam != null)
+                {
+                    labelText.transform.LookAt(mainCam.transform);
+                    labelText.transform.Rotate(0, 180, 0); // Text nicht gespiegelt
+                }
+            }
+            
             // Wenn wir ein Atom haben, prüfen WANN es weg ist
             if (currentAtom != null)
             {
