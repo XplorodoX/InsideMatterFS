@@ -40,7 +40,7 @@ namespace InsideMatter.Puzzle
         public ValidationZone validationZone;
         
         [Tooltip("Tafel-UI für Aufgaben-Anzeige")]
-        public ChalkboardUI chalkboardUI;
+        public WhiteboardController whiteboardController;
         
         [Tooltip("Level-Abschluss-Dialog")]
         public LevelCompleteDialog levelCompleteDialog;
@@ -168,10 +168,9 @@ namespace InsideMatter.Puzzle
             UnityEngine.Debug.Log($"Neue Aufgabe: {CurrentTask.moleculeName}");
             
             // Tafel aktualisieren
-            if (chalkboardUI != null)
+            if (whiteboardController != null)
             {
-                chalkboardUI.ResetColors();
-                chalkboardUI.ShowTask(CurrentTask, currentTaskIndex + 1);
+                whiteboardController.ShowTask(CurrentTask, currentTaskIndex + 1);
             }
             
             OnTaskStarted?.Invoke(CurrentTask);
@@ -282,9 +281,9 @@ namespace InsideMatter.Puzzle
             }
             
             // Tafel aktualisieren
-            if (chalkboardUI != null)
+            if (whiteboardController != null)
             {
-                chalkboardUI.ShowSuccess($"{result.moleculeName} erfolgreich gebaut!");
+                whiteboardController.ShowSuccess($"{result.moleculeName} erfolgreich gebaut!");
             }
             
             // Molekül markieren
@@ -334,9 +333,9 @@ namespace InsideMatter.Puzzle
             }
             
             // Tafel aktualisieren
-            if (chalkboardUI != null)
+            if (whiteboardController != null)
             {
-                chalkboardUI.ShowError(errorMsg);
+                // whiteboardController.ShowError(errorMsg); // Implement if needed in WhiteboardController
             }
             
             OnTaskFailed?.Invoke(result);
@@ -404,11 +403,10 @@ namespace InsideMatter.Puzzle
                 Destroy(atom.gameObject);
             }
             
-            // MainMenuManager suchen und Menü anzeigen
-            var menuManager = FindFirstObjectByType<MainMenuManager>();
-            if (menuManager != null)
+            // Whiteboard Menü anzeigen
+            if (whiteboardController != null)
             {
-                menuManager.ShowMenu();
+                whiteboardController.ShowMenu();
             }
         }
         

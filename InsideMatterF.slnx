@@ -11,4 +11,5 @@
   <Project Path="PICO.Platform.Editor.csproj" />
   <Project Path="Pico.Spatializer.csproj" />
   <Project Path="Pico.Spatializer.Editor.csproj" />
+  <Project Path="Unity.XR.Hands.Samples.VisualizerSample.csproj" />
 </Solution>
