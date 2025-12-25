@@ -688,10 +688,10 @@ namespace InsideMatter.Editor
             if (oldStation != null) Object.DestroyImmediate(oldStation);
 
             // Access Spawner mainly for the list of prefabs
-            AtomSpawner spawner = GameObject.FindFirstObjectByType<AtomSpawner>();
+            InsideMatter.Molecule.AtomSpawner spawner = GameObject.FindFirstObjectByType<InsideMatter.Molecule.AtomSpawner>();
             if (spawner == null)
             {
-                spawner = new GameObject("MainAtomSpawner").AddComponent<AtomSpawner>();
+                spawner = new GameObject("MainAtomSpawner").AddComponent<InsideMatter.Molecule.AtomSpawner>();
             }
             spawner.FindPrefabsInProject();
 
