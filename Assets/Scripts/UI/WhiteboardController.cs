@@ -17,7 +17,8 @@ namespace InsideMatter.UI
         [SerializeField] private RectTransform container;
         
         [Header("Pages")]
-        [SerializeField] private GameObject menuPage;
+        [SerializeField] private GameObject homePage;
+        [SerializeField] private GameObject levelSelectPage;
         [SerializeField] private GameObject taskPage;
 
         [Header("Menu Elements")]
@@ -30,32 +31,58 @@ namespace InsideMatter.UI
         [SerializeField] private TextMeshProUGUI moleculeFormulaText;
         [SerializeField] private TextMeshProUGUI atomListText;
         [SerializeField] private Button backToMenuButton;
+        [SerializeField] private Button backToHomeButton; // Back from Level Select to Home
 
         private PuzzleGameManager gameManager;
 
         public void Initialize(PuzzleGameManager gm)
         {
             gameManager = gm;
-            ShowMenu();
+            ShowHome();
         }
 
         private void Start()
         {
             if (backToMenuButton != null)
-            {
-                backToMenuButton.onClick.AddListener(ShowMenu);
-            }
+                backToMenuButton.onClick.AddListener(ShowLevelSelection);
+                
+            if (backToHomeButton != null)
+                backToHomeButton.onClick.AddListener(ShowHome);
+                
+            // Ensure correct start state if not initialized via code
+            if (gameManager == null) 
+                gameManager = FindFirstObjectByType<PuzzleGameManager>();
+            
+            ShowHome();
+        }
+
+        /// <summary>
+        /// Shows the Start Screen (Home)
+        /// </summary>
+        public void ShowHome()
+        {
+            if (homePage != null) homePage.SetActive(true);
+            if (levelSelectPage != null) levelSelectPage.SetActive(false);
+            if (taskPage != null) taskPage.SetActive(false);
         }
 
         /// <summary>
         /// Shows the Level Selection Menu
         /// </summary>
-        public void ShowMenu()
+        public void ShowLevelSelection()
         {
-            menuPage.SetActive(true);
-            taskPage.SetActive(false);
+            if (homePage != null) homePage.SetActive(false);
+            if (levelSelectPage != null) levelSelectPage.SetActive(true);
+            if (taskPage != null) taskPage.SetActive(false);
 
             GenerateLevelButtons();
+        }
+        
+        public void StartFreePlay()
+        {
+            Debug.Log("Free Play started!");
+            // Implementation specific: Start a sandbox level or mode
+            // For now, maybe just hide UI or show a "Sandbox" task?
         }
 
         /// <summary>
@@ -63,8 +90,9 @@ namespace InsideMatter.UI
         /// </summary>
         public void ShowTask(MoleculeDefinition molecule, int levelNumber)
         {
-            menuPage.SetActive(false);
-            taskPage.SetActive(true);
+            if (homePage != null) homePage.SetActive(false);
+            if (levelSelectPage != null) levelSelectPage.SetActive(false);
+            if (taskPage != null) taskPage.SetActive(true);
 
             if (molecule != null)
             {

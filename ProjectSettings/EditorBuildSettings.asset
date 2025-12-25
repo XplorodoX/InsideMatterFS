@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Samples/XR Interaction Toolkit/3.2.1/Starter Assets/DemoScene.unity
     guid: 16eed72c93a0046c585616ad50f83921
   m_configObjects:

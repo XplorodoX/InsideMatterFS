@@ -354,7 +354,7 @@ namespace InsideMatter.Editor
             
             // Komponenten verknüpfen
             gm.validationZone = Object.FindFirstObjectByType<ValidationZone>();
-            gm.chalkboardUI = Object.FindFirstObjectByType<ChalkboardUI>();
+            // gm.chalkboardUI = Object.FindFirstObjectByType<ChalkboardUI>(); // Deprecated
             gm.levelCompleteDialog = Object.FindFirstObjectByType<LevelCompleteDialog>();
             gm.feedbackEffects = Object.FindFirstObjectByType<FeedbackEffects>();
             

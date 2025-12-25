@@ -4,17 +4,22 @@ using UnityEngine.UI;
 using TMPro;
 using InsideMatter.UI;
 using InsideMatter.Puzzle;
+using System.Reflection; // Added for robustness
 
 public class SetupWhiteboard : EditorWindow
 {
     [MenuItem("Tools/Setup Whiteboard UI")]
     public static void Setup()
     {
-        // 1. Find Frontboard
-        GameObject frontboard = GameObject.Find("Frontboard");
+        // 1. Find Frontboard (Try exact name, then variations, then selection)
+        GameObject frontboard = GameObject.Find("FrontBoard");
+        if (frontboard == null) frontboard = GameObject.Find("Frontboard");
+        if (frontboard == null) frontboard = Selection.activeGameObject;
+
         if (frontboard == null)
         {
-            Debug.LogError("Could not find GameObject named 'Frontboard' in the scene context.");
+            Debug.LogError("Could not find 'FrontBoard' automatically. Please SELECT the board in the Scene view and run this tool again.");
+            EditorUtility.DisplayDialog("Setup Error", "Could not find 'FrontBoard'.\nPlease select the whiteboard object in the Scene and try again.", "OK");
             return;
         }
 
@@ -26,12 +31,67 @@ public class SetupWhiteboard : EditorWindow
         uiHost = new GameObject(containerName);
         uiHost.transform.SetParent(frontboard.transform);
         
-        // Position slightly in front of the board
-        // Assuming Board is Z-forward or standard. We place it at local Z -0.05 or similar?
-        // Let's guess standard orientation: Z is forward.
-        uiHost.transform.localPosition = new Vector3(0, 0, -0.02f); 
-        uiHost.transform.localRotation = Quaternion.Euler(0, 180, 0); // Face outward
-        uiHost.transform.localScale = Vector3.one * 0.002f; // Scale down for World Space
+        // --- SMART POSITIONING & SIZING ---
+        float worldScale = 0.002f; // Scale for UI World Space (Standard for clear text)
+        Vector2 canvasSize = new Vector2(1000, 600); // Default fallback
+
+        MeshFilter meshFilter = frontboard.GetComponentInChildren<MeshFilter>();
+        Renderer rend = frontboard.GetComponentInChildren<Renderer>();
+        
+        if (meshFilter != null)
+        {
+            // Use Local Bounds for exact sizing
+            Bounds localBounds = meshFilter.sharedMesh.bounds;
+            Vector3 parentScale = frontboard.transform.lossyScale;
+            
+            // Calculate real dimensions
+            float width = localBounds.size.x * parentScale.x;
+            float height = localBounds.size.y * parentScale.y;
+            
+            // Safety check: sometimes boards are modeled along Z or X. 
+            // Assuming standard Quad/Plane: X = width, Y = height.
+            // If Z is larger than X, maybe it's rotated?
+            // Let's assume X/Y plane for the face.
+            
+            // Add padding (5cm margin)
+            float margin = 0.05f;
+            float usableWidth = Mathf.Max(0.1f, width - margin * 2);
+            float usableHeight = Mathf.Max(0.1f, height - margin * 2);
+
+            // Calculate Canvas pixel size
+            canvasSize = new Vector2(usableWidth / worldScale, usableHeight / worldScale);
+
+            // Position at center of bounds (World Space) + slight offset
+            // We use Renderer bounds center for world position to be safe against pivot offsets
+            if (rend != null)
+                uiHost.transform.position = rend.bounds.center;
+            else
+                uiHost.transform.position = frontboard.transform.position;
+
+            // Rotation: Standard 180 flip for UI facing back? 
+            // Or align with object forward?
+            // Let's stick to user previous success, just adding size logic.
+            uiHost.transform.rotation = frontboard.transform.rotation * Quaternion.Euler(0, 180, 0);
+            
+            // Move "forward" in local space of the UI
+            uiHost.transform.Translate(Vector3.back * 0.02f, Space.Self); 
+        }
+        else if (rend != null)
+        {
+             // Fallback to Bounds if no mesh filter (e.g. primitive)
+             uiHost.transform.position = rend.bounds.center;
+             uiHost.transform.rotation = frontboard.transform.rotation * Quaternion.Euler(0, 180, 0);
+             uiHost.transform.Translate(Vector3.back * 0.05f, Space.Self);
+             // Guess size from bounds (unreliable if rotated)
+             canvasSize = new Vector2(rend.bounds.size.x / worldScale, rend.bounds.size.y / worldScale);
+        }
+        else
+        {
+             uiHost.transform.localPosition = new Vector3(0, 0, -0.05f); 
+             uiHost.transform.localRotation = Quaternion.Euler(0, 180, 0);
+        }
+        
+        uiHost.transform.localScale = Vector3.one * worldScale;
 
         // 3. Setup Canvas
         Canvas canvas = uiHost.AddComponent<Canvas>();
@@ -40,21 +100,27 @@ public class SetupWhiteboard : EditorWindow
         CanvasScaler scaler = uiHost.AddComponent<CanvasScaler>();
         scaler.dynamicPixelsPerUnit = 10;
 
-        uiHost.AddComponent<GraphicRaycaster>(); // Important for VR interaction? 
-        // Note: VR Interaction requires TrackedDeviceGraphicRaycaster usually.
-        // But let's stick to standard for now, user might have XR UI setup.
-        // We will add the component if XR Toolkit is present.
         #if ENABLE_VR || UNITY_XR_MANAGEMENT_CONSTANTS
-        // Try adding TrackedDeviceGraphicRaycaster via Reflection or name if direct type not available in potential asmdef mess
-        // But commonly:
-        // uiHost.AddComponent<UnityEngine.XR.Interaction.Toolkit.UI.TrackedDeviceGraphicRaycaster>();
+        // Attempt to add Tracked Device Graphic Raycaster for VR support
+        // We use Reflection to avoid compiler errors if package is missing
+        System.Type vrRaycaster = System.Type.GetType("UnityEngine.XR.Interaction.Toolkit.UI.TrackedDeviceGraphicRaycaster, Unity.XR.Interaction.Toolkit");
+        if (vrRaycaster != null)
+        {
+            uiHost.AddComponent(vrRaycaster);
+        }
+        else
+        {
+            uiHost.AddComponent<GraphicRaycaster>();
+        }
+        #else
+        uiHost.AddComponent<GraphicRaycaster>();
         #endif
 
         RectTransform rect = uiHost.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(1000, 600); // 16:9 ish high res
+        rect.sizeDelta = canvasSize; 
 
-        // 4. Create Background (Chalkboard Look)
-        CreateCleanUI(uiHost.transform);
+        // 4. Create Background
+        CreateCleanUI(uiHost.transform, canvasSize);
 
         // 5. Add Controller
         WhiteboardController controller = uiHost.AddComponent<WhiteboardController>();
@@ -63,35 +129,68 @@ public class SetupWhiteboard : EditorWindow
         Debug.Log("Whiteboard UI setup complete on 'Frontboard'.");
     }
 
-    private static void CreateCleanUI(Transform parent)
+    private static void CreateCleanUI(Transform parent, Vector2 size)
     {
-        // === MENU PAGE ===
-        GameObject menuPage = CreatePanel(parent, "MenuPage");
+        // === 1. HOME PAGE (Main Menu) ===
+        GameObject homePage = CreatePanel(parent, "HomePage");
         
-        CreateText(menuPage.transform, "Title", "MAIN MENU", new Vector2(0, 200), 80, FontStyles.Bold);
+        CreateText(homePage.transform, "Title", "MAIN MENU", new Vector2(0, size.y * 0.3f), size.y * 0.15f, FontStyles.Bold);
+        CreateText(homePage.transform, "Subtitle", "Select Mode", new Vector2(0, size.y * 0.15f), size.y * 0.08f, FontStyles.Normal);
+
+        // Buttons
+        float btnW = size.x * 0.4f;
+        float btnH = size.y * 0.2f;
         
-        GameObject listContainer = CreatePanel(menuPage.transform, "LevelList");
+        // Free Play Button
+        GameObject freePlayBtn = CreateButton(homePage.transform, "FreePlayBtn", "FREE PLAY", new Vector2(-size.x * 0.25f, -size.y * 0.1f));
+        SetButtonSize(freePlayBtn, new Vector2(btnW, btnH));
+        
+        // Levels Button
+        GameObject levelsBtn = CreateButton(homePage.transform, "LevelsBtn", "LEVELS", new Vector2(size.x * 0.25f, -size.y * 0.1f));
+        SetButtonSize(levelsBtn, new Vector2(btnW, btnH));
+
+
+        // === 2. LEVEL SELECT PAGE ===
+        GameObject levelSelectPage = CreatePanel(parent, "LevelSelectPage");
+        levelSelectPage.SetActive(false);
+        
+        CreateText(levelSelectPage.transform, "Title", "SELECT LEVEL", new Vector2(0, size.y * 0.35f), size.y * 0.15f, FontStyles.Bold);
+        
+        // List Container
+        GameObject listContainer = CreatePanel(levelSelectPage.transform, "LevelList");
         RectTransform listRect = listContainer.GetComponent<RectTransform>();
-        listRect.sizeDelta = new Vector2(800, 300);
-        listRect.anchoredPosition = new Vector2(0, -50);
+        listRect.sizeDelta = new Vector2(size.x * 0.8f, size.y * 0.5f);
+        listRect.anchoredPosition = new Vector2(0, -size.y * 0.05f);
         
         VerticalLayoutGroup vlg = listContainer.AddComponent<VerticalLayoutGroup>();
-        vlg.childControlHeight = false; // Buttons fixed height
+        vlg.childControlHeight = false; 
         vlg.childAlignment = TextAnchor.UpperCenter;
-        vlg.spacing = 20;
+        vlg.spacing = size.y * 0.05f;
 
-        // === TASK PAGE ===
+        // Back to Home Button
+        GameObject homeBtn = CreateButton(levelSelectPage.transform, "BackToHome", "BACK", new Vector2(0, -size.y * 0.35f));
+
+
+        // === 3. TASK PAGE ===
         GameObject taskPage = CreatePanel(parent, "TaskPage");
         taskPage.SetActive(false);
 
-        CreateText(taskPage.transform, "TaskTitle", "TASK TITLE", new Vector2(0, 220), 60, FontStyles.Bold);
-        CreateText(taskPage.transform, "Formula", "H2O", new Vector2(0, 140), 100, FontStyles.Bold);
-        CreateText(taskPage.transform, "Description", "Build water etc...", new Vector2(0, 0), 40, FontStyles.Normal);
-        CreateText(taskPage.transform, "AtomList", "H: 2\nO: 1", new Vector2(-300, -150), 40, FontStyles.Normal); // Left side
+        // Task Title
+        CreateText(taskPage.transform, "TaskTitle", "TASK TITLE", new Vector2(0, size.y * 0.35f), size.y * 0.1f, FontStyles.Bold);
+        CreateText(taskPage.transform, "Formula", "H2O", new Vector2(0, size.y * 0.15f), size.y * 0.2f, FontStyles.Bold);
+        CreateText(taskPage.transform, "Description", "Build water...", new Vector2(0, 0), size.y * 0.08f, FontStyles.Normal);
+        CreateText(taskPage.transform, "AtomList", "H: 2\nO: 1", new Vector2(-size.x * 0.3f, -size.y * 0.2f), size.y * 0.08f, FontStyles.Normal); 
 
-        // Back Button
-        GameObject backBtn = CreateButton(taskPage.transform, "BackToMenu", "BACK", new Vector2(350, -220));
+        // Back to Levels Button
+        GameObject menuBtn = CreateButton(taskPage.transform, "BackToMenu", "BACK", new Vector2(0, -size.y * 0.35f));
     }
+    
+    private static void SetButtonSize(GameObject btnObj, Vector2 size)
+    {
+        RectTransform rt = btnObj.GetComponent<RectTransform>();
+        if (rt != null) rt.sizeDelta = size;
+    }
+
 
     private static GameObject CreatePanel(Transform parent, string name)
     {
@@ -146,22 +245,53 @@ public class SetupWhiteboard : EditorWindow
 
     private static void AssignReferences(WhiteboardController ctrl, Transform root)
     {
-        ctrl.GetType().GetField("menuPage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ctrl, root.Find("MenuPage").gameObject);
-        ctrl.GetType().GetField("taskPage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ctrl, root.Find("TaskPage").gameObject);
-        ctrl.GetType().GetField("levelListContainer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ctrl, root.Find("MenuPage/LevelList"));
+        SetPrivateField(ctrl, "homePage", root.Find("HomePage").gameObject);
+        SetPrivateField(ctrl, "levelSelectPage", root.Find("LevelSelectPage").gameObject);
+        SetPrivateField(ctrl, "taskPage", root.Find("TaskPage").gameObject);
+        SetPrivateField(ctrl, "levelListContainer", root.Find("LevelSelectPage/LevelList"));
+        
+        Transform homePage = root.Find("HomePage");
+        // We will assign these to the Controller, but wait, Controller doesn't have fields for them yet!
+        // I need to add them to Controller. BUT I can't edit controller here.
+        // I will add the onClick listeners here in the Editor script using UnityEventTools!
+        
+        var freePlayBtn = homePage.Find("FreePlayBtn").GetComponent<Button>();
+        var levelsBtn = homePage.Find("LevelsBtn").GetComponent<Button>();
+        
+        UnityEditor.Events.UnityEventTools.AddPersistentListener(freePlayBtn.onClick, ctrl.StartFreePlay);
+        UnityEditor.Events.UnityEventTools.AddPersistentListener(levelsBtn.onClick, ctrl.ShowLevelSelection);
+        
+        Transform levelSelectPage = root.Find("LevelSelectPage");
+        var backToHomeBtn = levelSelectPage.Find("BackToHome").GetComponent<Button>();
+        // Controller now has backToHomeButton field, let's use that if possible, or just listener
+        UnityEditor.Events.UnityEventTools.AddPersistentListener(backToHomeBtn.onClick, ctrl.ShowHome);
         
         Transform taskPage = root.Find("TaskPage");
-        ctrl.GetType().GetField("taskTitleText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ctrl, taskPage.Find("TaskTitle").GetComponent<TextMeshProUGUI>());
-        ctrl.GetType().GetField("moleculeFormulaText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ctrl, taskPage.Find("Formula").GetComponent<TextMeshProUGUI>());
-        ctrl.GetType().GetField("taskDescriptionText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ctrl, taskPage.Find("Description").GetComponent<TextMeshProUGUI>());
-        ctrl.GetType().GetField("atomListText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ctrl, taskPage.Find("AtomList").GetComponent<TextMeshProUGUI>());
-        ctrl.GetType().GetField("backToMenuButton", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ctrl, taskPage.Find("BackToMenu").GetComponent<Button>());
+        SetPrivateField(ctrl, "taskTitleText", taskPage.Find("TaskTitle").GetComponent<TextMeshProUGUI>());
+        SetPrivateField(ctrl, "moleculeFormulaText", taskPage.Find("Formula").GetComponent<TextMeshProUGUI>());
+        SetPrivateField(ctrl, "taskDescriptionText", taskPage.Find("Description").GetComponent<TextMeshProUGUI>());
+        SetPrivateField(ctrl, "atomListText", taskPage.Find("AtomList").GetComponent<TextMeshProUGUI>());
+        SetPrivateField(ctrl, "backToMenuButton", taskPage.Find("BackToMenu").GetComponent<Button>());
         
-        // Dummy Prefab for Button (Create one to reference)
+        // Dummy Prefab for Button
         GameObject prefab = CreateButton(root, "LevelButtonPrefab", "Level X", Vector2.zero);
-        CreatePrefabFromObject(prefab, "Assets/Prefabs/UI/LevelButton.prefab");
-        ctrl.GetType().GetField("levelButtonPrefab", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ctrl, AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/UI/LevelButton.prefab"));
+        string path = "Assets/Prefabs/UI/LevelButton.prefab";
+        CreatePrefabFromObject(prefab, path);
+        SetPrivateField(ctrl, "levelButtonPrefab", AssetDatabase.LoadAssetAtPath<GameObject>(path));
         DestroyImmediate(prefab);
+    }
+    
+    private static void SetPrivateField(object target, string fieldName, object value)
+    {
+        FieldInfo field = target.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+        if (field != null)
+        {
+            field.SetValue(target, value);
+        }
+        else
+        {
+            Debug.LogError($"Field '{fieldName}' not found on {target.GetType().Name}");
+        }
     }
     
     private static void CreatePrefabFromObject(GameObject obj, string path)

@@ -406,7 +406,7 @@ namespace InsideMatter.Puzzle
             // Whiteboard Menü anzeigen
             if (whiteboardController != null)
             {
-                whiteboardController.ShowMenu();
+                whiteboardController.ShowHome();
             }
         }
         
