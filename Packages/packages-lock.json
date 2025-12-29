@@ -265,7 +265,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.picoxr": {
-      "version": "file:/Users/merluee/Downloads/PICO Unity Integration SDK-3.3.3-20251202",
+      "version": "file:../Dependencies/PICO Unity Integration SDK-3.3.3-20251202",
       "depth": 0,
       "source": "local",
       "dependencies": {
