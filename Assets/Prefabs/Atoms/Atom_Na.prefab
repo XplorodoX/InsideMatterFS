@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 1272378659373325455}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.3, y: 0, z: 0}
+  m_LocalPosition: {x: 0.5, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -120,9 +120,9 @@ Transform:
   m_GameObject: {fileID: 2503687732211003601}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.462, y: 1.567, z: 2.26}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5960189989448625090}
   - {fileID: 3302067078338953970}
@@ -164,7 +164,7 @@ MonoBehaviour:
   element: Na
   maxBonds: 1
   atomColor: {r: 0.8, g: 0.2, b: 0.8, a: 1}
-  atomRadius: 0.3
+  atomRadius: 0.25
   bondPoints:
   - {fileID: 158701109626626871}
 --- !u!54 &3771249957451080393
@@ -311,8 +311,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 8317641537940129111}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

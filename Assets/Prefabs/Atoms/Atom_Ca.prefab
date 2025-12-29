@@ -227,9 +227,9 @@ Transform:
   m_GameObject: {fileID: 4557689730373068534}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.29721528, y: 1.5166712, z: 1.8954811}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.23, y: 0.23, z: 0.23}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2287561252960064324}
   - {fileID: 3479381138576447483}
@@ -251,7 +251,7 @@ MonoBehaviour:
   element: Ca
   maxBonds: 2
   atomColor: {r: 1, g: 0.7529412, b: 0.4, a: 1}
-  atomRadius: 0.4
+  atomRadius: 0.23
   bondPoints:
   - {fileID: 5075528360742917598}
   - {fileID: 5067809431939507873}
