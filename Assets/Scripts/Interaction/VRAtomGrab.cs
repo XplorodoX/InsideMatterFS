@@ -83,7 +83,7 @@ namespace InsideMatter.Interaction
 
         // Bond Breaking Tracking
         private Vector3 grabStartPosition;
-        private List<Bond> bondsAtGrabStart = new List<Bond>();
+         // bondsAtGrabStart removed as we check interactively
 
         private void Awake()
         {
@@ -258,23 +258,41 @@ namespace InsideMatter.Interaction
 
         /// <summary>
         /// Prüft ob eine bestehende Bindung gelöst werden soll (durch Wegziehen)
+        /// Erfordert, dass BEIDE Atome gegriffen sind (Zweihand-Interaktion).
         /// </summary>
         private void CheckBondBreaking()
         {
-            if (bondsAtGrabStart.Count == 0) return;
+            if (MoleculeManager.Instance == null || atom == null) return;
 
-            float distanceMoved = Vector3.Distance(transform.position, grabStartPosition);
+            // Hole aktuelle Bindungen
+            List<Bond> currentBonds = MoleculeManager.Instance.GetBondsForAtom(atom);
 
-            if (distanceMoved > bondBreakDistance)
+            // Rückwärts iterieren, falls wir etwas entfernen
+            for (int i = currentBonds.Count - 1; i >= 0; i--)
             {
-                // Alle Bindungen dieses Atoms lösen
-                if (MoleculeManager.Instance != null)
+                var bond = currentBonds[i];
+                if (bond == null) continue;
+
+                // Das andere Atom finden
+                Molecule.Atom otherAtom = (bond.AtomA == atom) ? bond.AtomB : bond.AtomA;
+                
+                if (otherAtom != null)
                 {
-                    foreach (var bond in bondsAtGrabStart)
+                    // Prüfen, ob das ANDERE Atom auch gegriffen ist
+                    var otherGrab = otherAtom.GetComponent<VRAtomGrab>();
+                    if (otherGrab != null && otherGrab.IsGrabbed)
                     {
-                        if (bond != null)
+                        // Distanz berechnen
+                        float currentDistance = Vector3.Distance(transform.position, otherAtom.transform.position);
+                        
+                        // Schwelle berechnen: Standard-Abstand + Zieh-Toleranz
+                        float breakThreshold = MoleculeManager.Instance.minAtomDistance + bondBreakDistance;
+                        
+                        if (currentDistance > breakThreshold)
                         {
                             Vector3 bondPosition = (bond.BondPointA.transform.position + bond.BondPointB.transform.position) / 2f;
+                            
+                            // Bindung lösen
                             MoleculeManager.Instance.RemoveBond(bond);
                             
                             // Sound abspielen
@@ -282,21 +300,24 @@ namespace InsideMatter.Interaction
                             {
                                 Molecule.BondPreview.Instance.PlayBreakSound(bondPosition);
                             }
+
+                            // Haptic Feedback für BEIDE Controller
+                            TriggerHaptic(grabInteractable);
+                            TriggerHaptic(otherGrab.GetComponent<XRGrabInteractable>());
+
+                            UnityEngine.Debug.Log($"Bond broken via pull: {atom.element} <-> {otherAtom.element}");
                         }
                     }
-
-                    // Haptic Feedback beim Lösen
-                    if (grabInteractable.interactorsSelecting.Count > 0)
-                    {
-                        SendHapticFeedback(grabInteractable.interactorsSelecting[0], snapHapticIntensity, hapticDuration * 1.5f);
-                    }
-
-                    UnityEngine.Debug.Log($"Bonds broken for atom: {atom?.element ?? "Unknown"}");
                 }
-
-                bondsAtGrabStart.Clear();
-                grabStartPosition = transform.position; // Reset für weitere Bewegungen
             }
+        }
+
+        private void TriggerHaptic(XRBaseInteractable interactable)
+        {
+             if (interactable != null && interactable.interactorsSelecting.Count > 0)
+             {
+                 SendHapticFeedback(interactable.interactorsSelecting[0], snapHapticIntensity, hapticDuration * 1.5f);
+             }
         }
 
         /// <summary>
@@ -334,15 +355,8 @@ namespace InsideMatter.Interaction
             lastRotation = transform.rotation;
             accumulatedRotation = 0f;
 
-            // Grab-Position speichern für Bond-Breaking
+            // Grab-Position speichern für Bond-Breaking (obwohl jetzt weniger relevant für Distanz-Check, aber gut für Debugging/Historie)
             grabStartPosition = transform.position;
-            
-            // Aktuelle Bonds speichern
-            bondsAtGrabStart.Clear();
-            if (atom != null && MoleculeManager.Instance != null)
-            {
-                bondsAtGrabStart.AddRange(MoleculeManager.Instance.GetBondsForAtom(atom));
-            }
             
             UnityEngine.Debug.Log($"VR Grabbed atom: {atom?.element ?? "Unknown"}");
         }
@@ -390,7 +404,6 @@ namespace InsideMatter.Interaction
             
             // Tracking zurücksetzen
             nearbyAtom = null;
-            bondsAtGrabStart.Clear();
             
             UnityEngine.Debug.Log($"VR Released atom: {atom?.element ?? "Unknown"}");
         }

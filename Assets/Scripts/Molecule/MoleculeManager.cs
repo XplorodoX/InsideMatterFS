@@ -133,8 +133,8 @@ namespace InsideMatter.Molecule
             {
                 FixedJoint joint = atomA.gameObject.AddComponent<FixedJoint>();
                 joint.connectedBody = rbB;
-                joint.breakForce = 1000f; // Optional: Kann man später einstellbar machen
-                joint.breakTorque = 1000f;
+                joint.breakForce = float.PositiveInfinity;
+                joint.breakTorque = float.PositiveInfinity;
                 bond.Joint = joint;
             }
            
@@ -345,6 +345,61 @@ namespace InsideMatter.Molecule
             foreach (var bond in atomBonds)
             {
                 RemoveBond(bond);
+            }
+        }
+
+
+        /// <summary>
+        /// Berechnet die aktuell genutzte Valenz eines Atoms (Summe der Bindungsordnungen)
+        /// </summary>
+        public int CalculateCurrentValence(Atom atom)
+        {
+            if (atom == null) return 0;
+            
+            int valence = 0;
+            List<Bond> atomBonds = GetBondsForAtom(atom);
+            
+            foreach (var bond in atomBonds)
+            {
+                switch (bond.Type)
+                {
+                    case BondType.Single: valence += 1; break;
+                    case BondType.Double: valence += 2; break;
+                    case BondType.Triple: valence += 3; break;
+                }
+            }
+            
+            return valence;
+        }
+
+        /// <summary>
+        /// Prüft, ob eine Bindung auf einen neuen Typ aufgewertet werden kann (Valenz-Check)
+        /// </summary>
+        public bool CanUpgradeBond(Bond bond, BondType newType)
+        {
+            if (bond == null) return false;
+
+            int costDiff = GetBondCost(newType) - GetBondCost(bond.Type);
+            
+            // Check Atom A
+            int currentValenceA = CalculateCurrentValence(bond.AtomA);
+            if (currentValenceA + costDiff > bond.AtomA.maxBonds) return false;
+
+            // Check Atom B
+            int currentValenceB = CalculateCurrentValence(bond.AtomB);
+            if (currentValenceB + costDiff > bond.AtomB.maxBonds) return false;
+
+            return true;
+        }
+
+        private int GetBondCost(BondType type)
+        {
+            switch (type)
+            {
+                case BondType.Single: return 1;
+                case BondType.Double: return 2;
+                case BondType.Triple: return 3;
+                default: return 0;
             }
         }
     }

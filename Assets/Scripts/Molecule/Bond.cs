@@ -57,6 +57,15 @@ namespace InsideMatter.Molecule
         }
         
         /// <summary>
+        /// Ändert den Typ der Bindung (Single/Double/Triple)
+        /// </summary>
+        public void SetType(BondType newType)
+        {
+            Type = newType;
+            UpdateVisual();
+        }
+
+        /// <summary>
         /// Aktualisiert die Position der visuellen Darstellung
         /// </summary>
         public void UpdateVisual()
@@ -65,28 +74,55 @@ namespace InsideMatter.Molecule
             
             Vector3 posA = BondPointA.transform.position;
             Vector3 posB = BondPointB.transform.position;
-            
-            // Position in der Mitte zwischen den beiden BondPoints
-            Visual.transform.position = (posA + posB) / 2f;
-            
-            // Rotation zur Verbindung der Punkte
+            Vector3 center = (posA + posB) / 2f;
             Vector3 direction = posB - posA;
-            if (direction.magnitude > 0.001f)
+            float distance = direction.magnitude;
+            
+            // Position & Rotation
+            Visual.transform.position = center;
+            if (distance > 0.001f)
             {
-                // Zylinder zeigt standardmäßig entlang Y-Achse
                 Visual.transform.up = direction.normalized;
             }
             
-            // Skalierung basierend auf Abstand
-            float distance = direction.magnitude;
+            // Visual Component abrufen oder hinzufügen
+            var visualComp = Visual.GetComponent<BondVisual>();
+            if (visualComp == null)
+            {
+                visualComp = Visual.AddComponent<BondVisual>();
+            }
             
-            // Standard Cylinder ist 2 Einheiten hoch (y = -1 bis 1) oder 1 Einheit? 
-            // Unity Default Cylinder ist 2 Units hoch. Scale Y = distance / 2.
-            Visual.transform.localScale = new Vector3(
-                Visual.transform.localScale.x, // Behalte Dicke bei (wird im Manager oft gesetzt)
-                distance / 2f,
-                Visual.transform.localScale.z  // Behalte Dicke bei
-            );
+            // Material holen
+            Material mat = null;
+            if (MoleculeManager.Instance != null) mat = MoleculeManager.Instance.bondMaterial;
+            
+            // Visuals aktualisieren
+            float thickness = 0.08f;
+            if (MoleculeManager.Instance != null) thickness = MoleculeManager.Instance.bondThickness;
+            
+            visualComp.UpdateVisuals(Type, distance, thickness, mat);
+            
+            // Collider für Interaktion anpassen
+            UpdateCollider(distance, thickness);
+        }
+        
+        private void UpdateCollider(float length, float thickness)
+        {
+            if (Visual == null) return;
+            
+            // CapsuleCollider sicherstellen
+            var col = Visual.GetComponent<CapsuleCollider>();
+            if (col == null) col = Visual.AddComponent<CapsuleCollider>();
+            
+            col.direction = 1; // Y-Axis
+            col.height = length;
+            
+            // Radius anpassen je nach Typ (damit man auch Doppelbindungen gut trifft)
+            float radius = thickness;
+            if (Type == BondType.Double) radius = thickness * 2f;
+            if (Type == BondType.Triple) radius = thickness * 2.5f;
+            
+            col.radius = Mathf.Max(radius, 0.15f); // Mindestgröße für einfache Interaktion
         }
     }
     
