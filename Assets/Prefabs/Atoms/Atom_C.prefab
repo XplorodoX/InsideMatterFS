@@ -252,7 +252,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InsideMatter.Molecule.Atom
   element: C
   maxBonds: 4
-  atomColor: {r: 0, g: 0, b: 0, a: 1}
+  atomColor: {r: 0.18039216, g: 0.18039216, b: 0.18039216, a: 1}
   atomRadius: 0.5
   bondPoints:
   - {fileID: 5118512643084564301}
