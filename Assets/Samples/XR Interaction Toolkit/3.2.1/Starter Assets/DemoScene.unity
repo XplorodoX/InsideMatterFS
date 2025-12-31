@@ -239,6 +239,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: "Salpetrige\nS\xE4ure\nHNO<sub>2</sub>"
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -24
@@ -253,19 +257,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -273,7 +277,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -1471,6 +1475,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Calciumoxid
+
+        CaO'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -27
@@ -1959,6 +1969,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Ammoniak
+
+        NH<sub>3</sub>
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -18
@@ -2060,6 +2078,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: "Ameisen-s\xE4ure\nHCOOH"
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -42
@@ -2074,19 +2096,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2094,7 +2116,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -2400,6 +2422,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Aceton
+
+        C<sub>3</sub>H<sub>6</sub>O'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -39
@@ -2414,19 +2442,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2434,7 +2462,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -2460,6 +2488,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Wasser
+
+        H<sub>2</sub>O'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -24
@@ -2588,6 +2622,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Fluor-wasserstoff
+
+        HF'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -33
@@ -3135,6 +3175,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Wasserstoff-peroxid
+
+        H<sub>2</sub>O<sub>2</sub>'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -18
@@ -3149,19 +3195,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3169,7 +3215,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -3391,6 +3437,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Ethanol
+
+        C<sub>2</sub>H<sub>5</sub>OH'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9
@@ -3405,19 +3457,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3425,7 +3477,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -3451,6 +3503,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Kohlenstoff-dioxid
+
+        CO<sub>2</sub>'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -21
@@ -3563,6 +3621,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Glykol
+
+        C<sub>2</sub>H<sub>6</sub>O<sub>2</sub>'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -12
@@ -3577,19 +3641,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3597,7 +3661,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -3623,6 +3687,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Eisen(III)-oxid
+
+        Fe<sub>2</sub>O<sub>3</sub>'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -27
@@ -3637,19 +3707,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3657,7 +3727,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -3688,6 +3758,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Methan
+
+        CH<sub>4</sub>
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9
@@ -3942,6 +4020,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Stickstoff
+
+        N<sub>2</sub>
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -39
@@ -4007,6 +4093,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Ethen
+
+        C<sub>2</sub>H<sub>4</sub>
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -4021,19 +4115,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4041,7 +4135,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -4327,6 +4421,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Propan
+
+        C<sub>3</sub>H<sub>8</sub>
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3
@@ -4989,6 +5091,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Natrium-hydroxid
+
+        NaOH
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -12
@@ -5102,6 +5212,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Natrium-chlorid
+
+        NaCl'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -30
@@ -5162,6 +5278,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Glycerin
+
+        C<sub>3</sub>H<sub>8</sub>O<sub>3</sub>'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -15
@@ -5176,19 +5298,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5196,7 +5318,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -5627,6 +5749,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Ethin
+
+        C<sub>2</sub>H<sub>4</sub>
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3
@@ -5641,19 +5771,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5661,7 +5791,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -5687,6 +5817,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Butan
+
+        C<sub>4</sub>H<sub>10</sub>
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -5896,6 +6034,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: "Chlor-wasserstoff\n(Salzs\xE4ure)\nHCl\n"
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -36
@@ -5956,6 +6098,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Formaldehyd
+
+        CH<sub>2</sub>O'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -36
@@ -5970,19 +6118,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5990,7 +6138,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -6073,6 +6221,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Schwefel-wasserstoff
+
+        H<sub>2</sub>S
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -15
@@ -6201,6 +6357,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Harnstoff
+
+        CH<sub>4</sub>N<sub>2</sub>O'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -33
@@ -6215,19 +6377,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -6235,7 +6397,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -6261,6 +6423,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: "Kohlens\xE4ure\nH<sub>2</sub>CO<sub>3</sub>"
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -30
@@ -6275,19 +6441,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -6295,7 +6461,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -6753,6 +6919,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: "Essigs\xE4ure\nCH<sub>3</sub>COOH"
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -45
@@ -6767,19 +6937,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -6787,7 +6957,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -7303,6 +7473,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Methanol
+
+        CH<sub>3</sub>OH'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6
@@ -7317,19 +7493,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -7337,7 +7513,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -7485,6 +7661,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Calcium-hydroxid
+
+        Ca(OH)<sub>2</sub>'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -21
@@ -7499,19 +7681,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -7519,7 +7701,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -7545,6 +7727,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1796853260}
     m_Modifications:
+    - target: {fileID: 3942273047391737517, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
+      propertyPath: m_text
+      value: 'Ethan
+
+        C<sub>2</sub>H<sub>6</sub>
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 8406345940962432977, guid: 40f5be81466c0b44ea42f189deb1449d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6
