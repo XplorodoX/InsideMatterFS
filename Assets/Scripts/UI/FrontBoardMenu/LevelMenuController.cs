@@ -22,12 +22,6 @@ public class LevelMenuController : MonoBehaviour
         ShowPage();
     }
 
-    void Awake()
-    {
-        nextButton.onClick.AddListener(NextPage);
-        prevButton.onClick.AddListener(PrevPage);
-    }
-
     void ShowPage()
     {
         foreach (Transform child in levelButtonContainer)
@@ -40,12 +34,6 @@ public class LevelMenuController : MonoBehaviour
         {
             GameObject btn = Instantiate(levelButtonPrefab, levelButtonContainer);
             btn.GetComponentInChildren<TextMeshProUGUI>().text = $"Level {i + 1}";
-
-            int levelIndex = i;
-            btn.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                LoadLevel(levelIndex);
-            });
         }
 
         int maxPage = Mathf.CeilToInt((float)totalLevels / levelsPerPage) - 1;
@@ -55,21 +43,21 @@ public class LevelMenuController : MonoBehaviour
         nextButton.interactable = currentPage < maxPage;
     }
 
-    void NextPage()
+    public void NextPage()
     {
-        currentPage++;
-        ShowPage();
+        if(currentPage < ((totalLevels / levelsPerPage) - 1))
+        {
+            currentPage++;
+            ShowPage();
+        } 
     }
 
-    void PrevPage()
+    public void PrevPage()
     {
-        currentPage--;
-        ShowPage();
-    }
-
-    void LoadLevel(int index)
-    {
-        Debug.Log("Lade Level " + (index + 1));
-        // SceneManager.LoadScene(...)
+        if(currentPage > 0)
+        {
+            currentPage--;
+            ShowPage();
+        }
     }
 }
