@@ -1,66 +1,103 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
+[RequireComponent(typeof(XRSimpleInteractable))]
 public class PushButton : MonoBehaviour
 {
     [Header("Button Settings")]
-    [Tooltip("Wie stark der Button beim Drücken in Y skaliert wird")]
+    [Tooltip("Wie stark der Button beim DrÃ¼cken in Y skaliert wird")]
     [Range(0.1f, 1f)]
     public float pressedScaleY = 0.5f;
 
-    [Header("Move Target Settings")]
-    [Tooltip("GameObject, das beim Button-Klick bewegt werden soll")]
+    [Header("Move Target")]
+    [Tooltip("Dieses Objekt wird an seine eigene Startposition und -rotation gesetzt, wenn der Button gedrÃ¼ckt wird.")]
     public GameObject targetObject;
-
-    [Tooltip("Zielposition (X, Y, Z), auf die das GameObject gesetzt wird")]
-    public Vector3 targetPosition;
 
     [Header("Button Action")]
     public UnityEvent onButtonPressed;
 
     private Vector3 originalScale;
+    private Vector3 savedTargetPosition;
+    private Quaternion savedTargetRotation; // Speichert die Startrotation
     private bool isPressed = false;
+    private XRSimpleInteractable interactable;
 
     private void Awake()
     {
         originalScale = transform.localScale;
+        interactable = GetComponent<XRSimpleInteractable>();
+
+        // Speichere die Transformation des Zielobjekts beim Start
+        if (targetObject != null)
+        {
+            savedTargetPosition = targetObject.transform.position;
+            savedTargetRotation = targetObject.transform.rotation;
+        }
     }
 
-    /// <summary>
-    /// Wird aufgerufen, wenn der Button gedrückt wird
-    /// </summary>
+    private void OnEnable()
+    {
+        if (interactable != null)
+        {
+            interactable.selectEntered.AddListener(HandleXRSelectEntered);
+            interactable.selectExited.AddListener(HandleXRSelectExited);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (interactable != null)
+        {
+            interactable.selectEntered.RemoveListener(HandleXRSelectEntered);
+            interactable.selectExited.RemoveListener(HandleXRSelectExited);
+        }
+    }
+
+    private void HandleXRSelectEntered(SelectEnterEventArgs args)
+    {
+        Debug.Log($"<color=green>XR Select Entered auf {gameObject.name}</color>");
+        Press();
+    }
+
+    private void HandleXRSelectExited(SelectExitEventArgs args) => Release();
+
     public void Press()
     {
-        if (isPressed)
-            return;
-
+        if (isPressed) return;
         isPressed = true;
 
-        // Visuelles Feedback
+        // Visuelles Feedback fÃ¼r den Button
         transform.localScale = new Vector3(
             originalScale.x,
             originalScale.y * pressedScaleY,
             originalScale.z
         );
 
-        // Zielobjekt bewegen
+        // Zielobjekt zurÃ¼cksetzen
         if (targetObject != null)
         {
-            targetObject.transform.position = targetPosition;
+            // 1. Position und Rotation setzen
+            targetObject.transform.position = savedTargetPosition;
+            targetObject.transform.rotation = savedTargetRotation;
+
+            // 2. Physikalische Bewegung stoppen (wichtig fÃ¼r schwebende Objekte)
+            if (targetObject.TryGetComponent<Rigidbody>(out Rigidbody rb))
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+
+            Debug.Log($"{targetObject.name} zurÃ¼ckgesetzt auf Position: {savedTargetPosition} und Rotation: {savedTargetRotation.eulerAngles}");
         }
 
-        // Zusätzliche Button-Funktion auslösen
         onButtonPressed?.Invoke();
     }
 
-    /// <summary>
-    /// Wird aufgerufen, wenn der Button losgelassen wird
-    /// </summary>
     public void Release()
     {
-        if (!isPressed)
-            return;
-
+        if (!isPressed) return;
         isPressed = false;
         transform.localScale = originalScale;
     }
