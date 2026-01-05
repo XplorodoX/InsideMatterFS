@@ -66,7 +66,6 @@ namespace InsideMatter.Molecule
                 {
                     elementSymbol = prefabAtom.element;
                     elementColor = prefabAtom.atomColor;
-                    elementName = GetElementName(elementSymbol);
                 }
             }
             
@@ -78,8 +77,8 @@ namespace InsideMatter.Molecule
             
             // TextMeshPro hinzufügen
             labelText = labelObj.AddComponent<TextMeshPro>();
-            labelText.text = $"{elementName}\n<size=150%><b>{elementSymbol}</b></size>";
-            labelText.fontSize = labelFontSize;
+            labelText.text = $"<size=200%><b>{elementSymbol}</b></size>";
+            labelText.fontSize = labelFontSize * 1.5f; // Größer, da nur noch ein Buchstabe
             labelText.color = labelColor;
             labelText.alignment = TextAlignmentOptions.Center;
             labelText.enableAutoSizing = false;
@@ -90,32 +89,6 @@ namespace InsideMatter.Molecule
             
             // Optional: Leichten farbigen Hintergrund passend zum Element
             // Das Label dreht sich zum Spieler (Billboard-Effekt wird in Update gemacht)
-        }
-        
-        /// <summary>
-        /// Gibt den deutschen Namen für ein Element-Symbol zurück
-        /// </summary>
-        private string GetElementName(string symbol)
-        {
-            switch (symbol.ToUpper())
-            {
-                case "H": return "Wasserstoff";
-                case "C": return "Kohlenstoff";
-                case "O": return "Sauerstoff";
-                case "N": return "Stickstoff";
-                case "S": return "Schwefel";
-                case "P": return "Phosphor";
-                case "CL": return "Chlor";
-                case "F": return "Fluor";
-                case "BR": return "Brom";
-                case "I": return "Iod";
-                case "NA": return "Natrium";
-                case "K": return "Kalium";
-                case "CA": return "Calcium";
-                case "MG": return "Magnesium";
-                case "FE": return "Eisen";
-                default: return symbol;
-            }
         }
 
         void Update()
@@ -187,11 +160,16 @@ namespace InsideMatter.Molecule
         {
              if (atomPrefab == null) return;
 
-            Vector3 spawnPos = transform.position + Vector3.up * 0.1f;
+            // Skalierung (Verkleinert auf 0.4 für bessere VR-Haptik)
+            float spawnScale = 0.4f;
+            
+            // Spawn-Höhe: 18cm über dem Tray-Zentrum für gute Sichtbarkeit
+            float heightAboveTray = 0.18f;
+            Vector3 spawnPos = transform.position + Vector3.up * heightAboveTray;
+            
             currentAtom = Instantiate(atomPrefab, spawnPos, Quaternion.identity);
             
-            // Skalierung (Verkleinert auf 0.4 für bessere VR-Haptik)
-            currentAtom.transform.localScale *= 0.4f; 
+            currentAtom.transform.localScale *= spawnScale; 
             // Kollision Tray ignorieren
             Collider atomCol = currentAtom.GetComponent<Collider>();
             Collider trayCol = GetComponent<Collider>();

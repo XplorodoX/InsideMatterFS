@@ -31,21 +31,38 @@ namespace InsideMatter.Molecule
         // Chemisch korrekte Geometrien (Vektoren von Zentrum zu BondPoint)
         private static readonly Dictionary<string, Vector3[]> ElementGeometries = new Dictionary<string, Vector3[]>()
         {
-            { "H", new Vector3[] { Vector3.forward } }, // 1 Bindung
+        { "H", new Vector3[] { Vector3.forward } }, // 1 Bindung
+            { "Fl", new Vector3[] { Vector3.forward } },
+            { "Cl", new Vector3[] { Vector3.forward } },
+            { "Na", new Vector3[] { Vector3.forward } },
+            
             { "O", new Vector3[] { // 2 Bindungen (Winkel ca. 104.5°)
                 new Vector3(0, 0.407f, 0.914f),
                 new Vector3(0, -0.407f, 0.914f)
             } },
+            { "S", new Vector3[] { // 2 Bindungen (Winkel ca. 104.5°)
+                new Vector3(0, 0.407f, 0.914f),
+                new Vector3(0, -0.407f, 0.914f)
+            } },
+            
             { "N", new Vector3[] { // 3 Bindungen (Tripodal / Pyramidal)
                 new Vector3(0.94f, 0, -0.33f),
                 new Vector3(-0.47f, 0.81f, -0.33f),
                 new Vector3(-0.47f, -0.81f, -0.33f)
             } },
+            
             { "C", new Vector3[] { // 4 Bindungen (Tetraedrisch)
                 new Vector3(1, 1, 1).normalized,
                 new Vector3(1, -1, -1).normalized,
                 new Vector3(-1, 1, -1).normalized,
                 new Vector3(-1, -1, 1).normalized
+            } },
+
+            { "Fe", new Vector3[] { // 6 Bindungen (Oktaedrisch)
+                Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back
+            } },
+            { "Ca", new Vector3[] { // 6 Bindungen (Oktaedrisch)
+                Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back
             } }
         };
        
@@ -101,6 +118,63 @@ namespace InsideMatter.Molecule
             }
             
             transform.localScale = Vector3.one * atomRadius;
+            
+            // BondPoint Visuals nach einem Frame erstellen (wenn lossyScale korrekt ist)
+            StartCoroutine(CreateBondPointVisualsDelayed());
+        }
+        
+        private System.Collections.IEnumerator CreateBondPointVisualsDelayed()
+        {
+            // Warte 2 Frames damit alle Skalierungen angewendet sind
+            yield return null;
+            yield return null;
+            
+            // ALLE alten Visuals löschen
+            foreach (var bp in bondPoints)
+            {
+                if (bp == null) continue;
+                for (int i = bp.transform.childCount - 1; i >= 0; i--)
+                {
+                    Destroy(bp.transform.GetChild(i).gameObject);
+                }
+            }
+            
+            yield return null; // Warte bis gelöscht
+            
+            // FESTE ABSOLUTE WELT-GRÖSSE: 8mm = 0.008 Einheiten
+            // Trick: Erstelle das Visual OHNE Parent, setze absolute Größe, DANN parent
+            float absoluteWorldSize = 0.008f;
+            
+            foreach (var bp in bondPoints)
+            {
+                if (bp == null) continue;
+                
+                // Visual erstellen (NOCH NICHT PARENTED)
+                GameObject vgo = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                vgo.name = "Visual";
+                
+                // Absolute Welt-Skalierung setzen BEVOR wir parenten
+                vgo.transform.localScale = Vector3.one * absoluteWorldSize;
+                
+                // Jetzt parenten (Unity passt localScale automatisch an)
+                vgo.transform.SetParent(bp.transform, worldPositionStays: true);
+                vgo.transform.localPosition = Vector3.zero;
+                
+                // Collider entfernen
+                Destroy(vgo.GetComponent<Collider>());
+                
+                // Material: Weiß
+                Renderer rend = vgo.GetComponent<Renderer>();
+                if (rend != null)
+                {
+                    Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
+                    mat.color = Color.white;
+                    mat.SetColor("_BaseColor", Color.white);
+                    rend.sharedMaterial = mat;
+                }
+            }
+            
+            Debug.Log($"[Atom {element}] BondPoint Visuals erstellt mit Welt-Größe {absoluteWorldSize}m");
         }
         
         /// <summary>
@@ -154,82 +228,61 @@ namespace InsideMatter.Molecule
         [ContextMenu("Fix Geometry (Factual)")]
         public void UpdateBondPoints()
         {
-            if (!ElementGeometries.ContainsKey(element))
+            Vector3[] directions = null;
+            
+            if (ElementGeometries.ContainsKey(element))
             {
-                Debug.LogWarning($"[Atom] Keine Geometrie-Daten für Element {element} hinterlegt.");
-                return;
+                directions = ElementGeometries[element];
+                maxBonds = directions.Length;
+            }
+            else
+            {
+                Debug.LogWarning($"[Atom] Keine Geometrie-Daten für Element {element} - verwende existierende BondPoints.");
+                // Fahre trotzdem fort um existierende BondPoints zu aktualisieren
             }
 
-            Vector3[] directions = ElementGeometries[element];
-            maxBonds = directions.Length;
-
-            // Vorhandene Punkte bereinigen/sammeln
+            // Vorhandene Punkte sammeln
             var currentPoints = GetComponentsInChildren<BondPoint>(true).ToList();
             
-            // Zu viele Punkte?
-            while (currentPoints.Count > maxBonds)
+            // Nur wenn wir Geometrie-Daten haben, Punkte anpassen
+            if (directions != null)
             {
-                var p = currentPoints[currentPoints.Count - 1];
-                currentPoints.RemoveAt(currentPoints.Count - 1);
-                if (Application.isPlaying) Destroy(p.gameObject);
-                else DestroyImmediate(p.gameObject);
-            }
+                // Zu viele Punkte?
+                while (currentPoints.Count > maxBonds)
+                {
+                    var p = currentPoints[currentPoints.Count - 1];
+                    currentPoints.RemoveAt(currentPoints.Count - 1);
+                    if (Application.isPlaying) Destroy(p.gameObject);
+                    else DestroyImmediate(p.gameObject);
+                }
 
-            // Zu wenige Punkte?
-            while (currentPoints.Count < maxBonds)
-            {
-                GameObject go = new GameObject($"BondPoint_{currentPoints.Count}");
-                go.transform.SetParent(this.transform);
-                var bp = go.AddComponent<BondPoint>();
-                currentPoints.Add(bp);
+                // Zu wenige Punkte?
+                while (currentPoints.Count < maxBonds)
+                {
+                    GameObject go = new GameObject($"BondPoint_{currentPoints.Count}");
+                    go.transform.SetParent(this.transform);
+                    var bp = go.AddComponent<BondPoint>();
+                    currentPoints.Add(bp);
+                }
             }
 
             bondPoints = currentPoints;
 
-            // Punkte positionieren
-            // Ein Standard-Primitive Sphere (Radius 0.5) skaliert mit transform.localScale hat echten world-Radius (0.5 * atomRadius)
-            // Um an der Oberfläche zu sein, muss der lokale Abstand also genau 0.5f sein.
+            // Punkte positionieren und Visuals aktualisieren
             float dist = 0.5f; 
             for (int i = 0; i < bondPoints.Count; i++)
             {
-                bondPoints[i].transform.localPosition = directions[i] * dist;
-                bondPoints[i].transform.localRotation = Quaternion.LookRotation(directions[i]);
+                // Positionierung nur wenn wir Geometrie-Daten haben
+                if (directions != null && i < directions.Length)
+                {
+                    bondPoints[i].transform.localPosition = directions[i] * dist;
+                    bondPoints[i].transform.localRotation = Quaternion.LookRotation(directions[i]);
+                }
+                
                 bondPoints[i].ParentAtom = this;
                 bondPoints[i].name = $"BondPoint_{element}_{i}";
-
-                // VISUELLE ANKERPUNKTE (Gelbe Kugeln)
-                Transform visual = bondPoints[i].transform.Find("Visual");
-                if (visual == null)
-                {
-                    GameObject vgo = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    vgo.name = "Visual";
-                    vgo.transform.SetParent(bondPoints[i].transform);
-                    vgo.transform.localPosition = Vector3.zero;
-                    // Skalierung an atomRadius anpassen, damit die Punkte immer gleich groß erscheinen
-                    vgo.transform.localScale = Vector3.one * (0.25f / atomRadius); 
-                    DestroyImmediate(vgo.GetComponent<Collider>());
-                    visual = vgo.transform;
-
-                    // Material (Gelb & Leuchtend)
-                    Renderer rend = vgo.GetComponent<Renderer>();
-                    
-                    // Sicherer Weg um Shader in Builds zu finden: Nutze den Shader vom MoleculeManager Material
-                    Shader urpShader = null;
-                    if (MoleculeManager.Instance != null && MoleculeManager.Instance.bondMaterial != null)
-                    {
-                        urpShader = MoleculeManager.Instance.bondMaterial.shader;
-                    }
-                    else
-                    {
-                        urpShader = Shader.Find("Universal Render Pipeline/Lit");
-                    }
-
-                    Material mat = new Material(urpShader);
-                    mat.color = Color.yellow;
-                    mat.EnableKeyword("_EMISSION");
-                    mat.SetColor("_EmissionColor", Color.yellow * 0.5f);
-                    rend.sharedMaterial = mat;
-                }
+                
+                // Visuals werden separat in CreateBondPointVisualsDelayed() erstellt
             }
             Debug.Log($"[Atom] Geometrie für {element} aktualisiert ({maxBonds} Punkte).");
         }
