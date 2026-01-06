@@ -84,7 +84,7 @@ namespace InsideMatter.Molecule
         /// <summary>
         /// Erstellt eine Bindung zwischen zwei BondPoints
         /// </summary>
-        public void CreateBond(BondPoint bondPointA, BondPoint bondPointB)
+        public void CreateBond(BondPoint bondPointA, BondPoint bondPointB, BondType bondType = BondType.Single)
         {
             if (bondPointA == null || bondPointB == null)
             {
@@ -115,8 +115,9 @@ namespace InsideMatter.Molecule
             bondPointA.Occupied = true;
             bondPointB.Occupied = true;
             
-            // 3. Bond-Objekt erstellen
+            // 3. Bond-Objekt erstellen mit gewähltem Typ
             Bond bond = new Bond(atomA, atomB, bondPointA, bondPointB);
+            bond.Type = bondType; // Bond-Typ setzen (Single/Double/Triple)
             bonds.Add(bond);
             
             // 4. Logische Verbindung registrieren

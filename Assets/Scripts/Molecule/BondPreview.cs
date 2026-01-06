@@ -26,8 +26,8 @@ namespace InsideMatter.Molecule
         public float previewThickness = 0.08f;
         
         [Header("Hint Settings")]
-        [Tooltip("Text der angezeigt wird")]
-        public string hintTextContent = "Release to connect";
+        [Tooltip("Text der angezeigt wird (leer = kein Text)")]
+        public string hintTextContent = ""; // Deaktiviert
         public float hintVerticalOffset = 0.15f;
         public float hintFontSize = 1.5f;
 
@@ -45,7 +45,7 @@ namespace InsideMatter.Molecule
         private BondPoint previewBondPointA;
         private BondPoint previewBondPointB;
         private GameObject previewVisual;
-        private Renderer previewRenderer;
+        private BondVisual previewBondVisual;
         private Material previewMaterial;
         private AudioSource audioSource;
         
@@ -56,6 +56,49 @@ namespace InsideMatter.Molecule
         public bool IsPreviewActive => previewBondPointA != null && previewBondPointB != null;
         public BondPoint PreviewBondPointA => previewBondPointA;
         public BondPoint PreviewBondPointB => previewBondPointB;
+        
+        // Aktueller Bond-Typ für die Preview
+        private BondType previewBondType = BondType.Single;
+        public BondType CurrentBondType => previewBondType;
+        
+        /// <summary>
+        /// Wechselt zum nächsten Bond-Typ (Single -> Double -> Triple -> Single)
+        /// </summary>
+        public void CycleBondType()
+        {
+            switch (previewBondType)
+            {
+                case BondType.Single:
+                    previewBondType = BondType.Double;
+                    break;
+                case BondType.Double:
+                    previewBondType = BondType.Triple;
+                    break;
+                case BondType.Triple:
+                default:
+                    previewBondType = BondType.Single;
+                    break;
+            }
+            Debug.Log($"[BondPreview] Bond-Typ gewechselt zu: {previewBondType}");
+            
+            // Visual aktualisieren
+            if (IsPreviewActive)
+            {
+                UpdatePreviewVisual();
+            }
+        }
+        
+        /// <summary>
+        /// Setzt den Bond-Typ direkt
+        /// </summary>
+        public void SetBondType(BondType type)
+        {
+            previewBondType = type;
+            if (IsPreviewActive)
+            {
+                UpdatePreviewVisual();
+            }
+        }
 
         void Awake()
         {
@@ -79,19 +122,18 @@ namespace InsideMatter.Molecule
         }
 
         /// <summary>
-        /// Erstellt das visuelle Preview-Objekt (Zylinder)
+        /// Erstellt das visuelle Preview-Objekt mit BondVisual für multi-line Support
         /// </summary>
         private void CreatePreviewVisual()
         {
-            previewVisual = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            previewVisual.name = "BondPreview";
+            // Container für die Preview erstellen
+            previewVisual = new GameObject("BondPreview");
             previewVisual.transform.SetParent(transform);
-
-            // Collider entfernen
-            Destroy(previewVisual.GetComponent<Collider>());
+            
+            // BondVisual Component hinzufügen für Single/Double/Triple Support
+            previewBondVisual = previewVisual.AddComponent<BondVisual>();
 
             // Material mit Transparenz erstellen
-            previewRenderer = previewVisual.GetComponent<Renderer>();
             Shader shader = (MoleculeManager.Instance != null && MoleculeManager.Instance.bondMaterial != null) 
                 ? MoleculeManager.Instance.bondMaterial.shader 
                 : Shader.Find("Universal Render Pipeline/Lit");
@@ -108,7 +150,6 @@ namespace InsideMatter.Molecule
             previewMaterial.renderQueue = 3000;
 
             UpdatePreviewColor();
-            previewRenderer.material = previewMaterial;
 
             // Anfangs verstecken
             previewVisual.SetActive(false);
@@ -190,6 +231,7 @@ namespace InsideMatter.Molecule
         private void UpdatePreviewVisual()
         {
             if (previewBondPointA == null || previewBondPointB == null) return;
+            if (previewBondVisual == null) return;
 
             Vector3 posA = previewBondPointA.transform.position;
             Vector3 posB = previewBondPointB.transform.position;
@@ -204,17 +246,11 @@ namespace InsideMatter.Molecule
 
             if (distance > 0.001f)
             {
-                // Zylinder zeigt standardmäßig entlang Y-Achse, 
-                // wir wollen ihn entlang der Verbindungsrichtung
                 previewVisual.transform.up = direction.normalized;
             }
 
-            // Skalierung: X und Z für Dicke, Y für Länge (halbe Länge weil Zylinder von -0.5 bis 0.5 geht)
-            previewVisual.transform.localScale = new Vector3(
-                previewThickness,
-                distance / 2f,
-                previewThickness
-            );
+            // BondVisual für Single/Double/Triple Visualisierung nutzen
+            previewBondVisual.UpdateVisuals(previewBondType, distance, previewThickness, previewMaterial);
             
             // --- Update Hint Position ---
             if (hintText != null)
@@ -238,15 +274,20 @@ namespace InsideMatter.Molecule
 
             BondPoint bpA = previewBondPointA;
             BondPoint bpB = previewBondPointB;
+            BondType bondType = previewBondType; // Aktuellen Typ speichern
 
             // Vorschau verstecken
             HidePreview();
+            
+            // Bond-Typ zurücksetzen für nächste Bindung
+            previewBondType = BondType.Single;
 
-            // Echte Bindung erstellen
+            // Echte Bindung erstellen mit gewähltem Typ
             if (MoleculeManager.Instance != null)
             {
-                MoleculeManager.Instance.CreateBond(bpA, bpB);
+                MoleculeManager.Instance.CreateBond(bpA, bpB, bondType);
                 PlayBondSound(bondCreateSound, bpA.transform.position);
+                Debug.Log($"[BondPreview] Bond erstellt mit Typ: {bondType}");
                 return true;
             }
 

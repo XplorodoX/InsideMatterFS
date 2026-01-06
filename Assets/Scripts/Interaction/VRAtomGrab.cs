@@ -146,6 +146,37 @@ namespace InsideMatter.Interaction
                 UpdateBondPreview();
                 CheckRotationForBondPointSwitch();
                 CheckBondBreaking();
+                CheckBondTypeInput();
+            }
+        }
+        
+        /// <summary>
+        /// Prüft Input für Bond-Typ Wechsel (Single/Double/Triple)
+        /// </summary>
+        private void CheckBondTypeInput()
+        {
+            if (BondPreview.Instance == null) return;
+            if (!BondPreview.Instance.IsPreviewActive) return;
+            
+            // Desktop: Tasten 1, 2, 3 für direkten Bond-Typ
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                BondPreview.Instance.SetBondType(BondType.Single);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                BondPreview.Instance.SetBondType(BondType.Double);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                BondPreview.Instance.SetBondType(BondType.Triple);
+            }
+            
+            // VR: Sekundärer Button (B/Y) zum Durchschalten
+            // Nutze GetButtonDown für XR Controller
+            if (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Space))
+            {
+                BondPreview.Instance.CycleBondType();
             }
         }
 
