@@ -122,3 +122,6 @@ plastic.selector
 # ============= #
 
 # (Falls du große SDK-Dateien ausschließen willst, kannst du hier ergänzen)
+Packages/packages-lock.json
+InsideMatterFS-1.slnx
+Packages/manifest.json
