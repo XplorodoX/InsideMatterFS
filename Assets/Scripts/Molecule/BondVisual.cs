@@ -29,7 +29,7 @@ namespace InsideMatter.Molecule
             
             // Set dimensions and positions
             float cylinderScaleY = length / 2f; // Unity cylinder is 2 units high
-            float offsetAmount = thickness * 1.5f; // Spacing between multiple bonds
+            float offsetAmount = thickness * 0.8f; // Geringerer Abstand zwischen Mehrfachbindungen
             
             for (int i = 0; i < cylinders.Count; i++)
             {
@@ -111,10 +111,10 @@ namespace InsideMatter.Molecule
             
             if (type == BondType.Triple)
             {
-                // Triangle
-                if (index == 0) return new Vector3(offset, 0, 0);
-                if (index == 1) return new Vector3(-offset * 0.5f, 0, offset * 0.866f); // sin(60) ≈ 0.866
-                if (index == 2) return new Vector3(-offset * 0.5f, 0, -offset * 0.866f);
+                // Vertikal untereinander (nicht Dreieck)
+                if (index == 0) return Vector3.zero; // Mitte
+                if (index == 1) return new Vector3(offset, 0, 0); // Rechts
+                if (index == 2) return new Vector3(-offset, 0, 0); // Links
             }
             
             return Vector3.zero;

@@ -89,6 +89,10 @@ namespace InsideMatter.Interaction
         private Vector3 grabStartPosition;
          // bondsAtGrabStart removed as we check interactively
 
+        // Molecule Movement Tracking (Rigid body movement for entire molecule)
+        private Dictionary<Molecule.Atom, Vector3> moleculeAtomOffsets = new Dictionary<Molecule.Atom, Vector3>();
+        private List<Molecule.Atom> currentMoleculeAtoms = new List<Molecule.Atom>();
+
         private void Awake()
         {
             grabInteractable = GetComponent<XRGrabInteractable>();
@@ -164,6 +168,7 @@ namespace InsideMatter.Interaction
         {
             if (isGrabbed)
             {
+                UpdateMoleculePositions(); // Move entire molecule rigidly
                 UpdateBondPreview();
                 CheckRotationForBondPointSwitch();
                 CheckBondBreaking();
@@ -433,6 +438,9 @@ namespace InsideMatter.Interaction
             // Atom als "wurde gegriffen" markieren - erlaubt jetzt Bonding
             if (atom != null) atom.WasEverGrabbed = true;
             
+            // MOLECULE TRACKING: Speichere alle verbundenen Atome für starre Bewegung
+            InitializeMoleculeTracking();
+            
             UnityEngine.Debug.Log($"VR Grabbed atom: {atom?.element ?? "Unknown"}");
         }
 
@@ -577,6 +585,112 @@ namespace InsideMatter.Interaction
         /// Get whether this atom is currently being grabbed
         /// </summary>
         public bool IsGrabbed => isGrabbed;
+
+        #region Molecule Movement (Rigid Body)
+        
+        /// <summary>
+        /// Initialisiert das Tracking aller verbundenen Atome für starre Molekülbewegung.
+        /// Speichert relative Positionen und Rotationen aller Atome im Molekül.
+        /// </summary>
+        private void InitializeMoleculeTracking()
+        {
+            moleculeAtomOffsets.Clear();
+            currentMoleculeAtoms.Clear();
+            
+            if (atom == null) return;
+            
+            // Finde alle transitiv verbundenen Atome (das gesamte Molekül)
+            currentMoleculeAtoms = GetAllConnectedAtoms(atom);
+            
+            // Speichere relative Positionen zu diesem Atom
+            foreach (var moleculeAtom in currentMoleculeAtoms)
+            {
+                if (moleculeAtom != atom) // Nicht das gegriffene Atom selbst
+                {
+                    Vector3 offset = moleculeAtom.transform.position - transform.position;
+                    moleculeAtomOffsets[moleculeAtom] = offset;
+                    
+                    // Mache das andere Atom kinematisch, damit es sich nicht durch Physik bewegt
+                    var otherRb = moleculeAtom.GetComponent<Rigidbody>();
+                    if (otherRb != null)
+                    {
+                        otherRb.isKinematic = true;
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Aktualisiert die Positionen aller verbundenen Atome basierend auf der Bewegung des gegriffenen Atoms.
+        /// Ermöglicht starre Molekülbewegung.
+        /// </summary>
+        private void UpdateMoleculePositions()
+        {
+            if (atom == null || moleculeAtomOffsets.Count == 0) return;
+            
+            // Prüfe ob ein anderes Atom des Moleküls AUCH gegriffen wird (Zweihand-Aktion)
+            bool anotherAtomIsGrabbed = false;
+            foreach (var moleculeAtom in currentMoleculeAtoms)
+            {
+                if (moleculeAtom == atom) continue;
+                
+                var otherGrab = moleculeAtom.GetComponent<VRAtomGrab>();
+                if (otherGrab != null && otherGrab.IsGrabbed)
+                {
+                    anotherAtomIsGrabbed = true;
+                    break;
+                }
+            }
+            
+            // Wenn zwei Atome gegriffen werden: NICHT synchronisieren (ermöglicht Trennung)
+            if (anotherAtomIsGrabbed) return;
+            
+            // Bewege alle verbundenen Atome starr mit
+            foreach (var kvp in moleculeAtomOffsets)
+            {
+                var moleculeAtom = kvp.Key;
+                var offset = kvp.Value;
+                
+                if (moleculeAtom != null && moleculeAtom.transform != null)
+                {
+                    moleculeAtom.transform.position = transform.position + offset;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Findet alle transitiv verbundenen Atome (BFS durch das Bindungsnetzwerk).
+        /// </summary>
+        private List<Molecule.Atom> GetAllConnectedAtoms(Molecule.Atom startAtom)
+        {
+            List<Molecule.Atom> result = new List<Molecule.Atom>();
+            if (startAtom == null) return result;
+            
+            HashSet<Molecule.Atom> visited = new HashSet<Molecule.Atom>();
+            Queue<Molecule.Atom> queue = new Queue<Molecule.Atom>();
+            
+            queue.Enqueue(startAtom);
+            visited.Add(startAtom);
+            
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                result.Add(current);
+                
+                foreach (var neighbor in current.ConnectedAtoms)
+                {
+                    if (neighbor != null && !visited.Contains(neighbor))
+                    {
+                        visited.Add(neighbor);
+                        queue.Enqueue(neighbor);
+                    }
+                }
+            }
+            
+            return result;
+        }
+        
+        #endregion
 
         private void OnDestroy()
         {

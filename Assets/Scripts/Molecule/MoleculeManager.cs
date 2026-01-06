@@ -19,17 +19,17 @@ namespace InsideMatter.Molecule
         public Material bondMaterial;
         
         [Tooltip("Durchmesser der Bindungs-Zylinder")]
-        public float bondThickness = 0.05f;
+        public float bondThickness = 0.03f; // Dünnere Linien
         
         [Header("Bond Colors")]
         [Tooltip("Farbe für Einfachbindungen")]
         public Color singleBondColor = Color.white;
         
         [Tooltip("Farbe für Doppelbindungen")]
-        public Color doubleBondColor = new Color(0.3f, 0.6f, 1f); // Hellblau
+        public Color doubleBondColor = Color.white; // Weiß wie Einfachbindung
         
         [Tooltip("Farbe für Dreifachbindungen")]
-        public Color tripleBondColor = new Color(1f, 0.3f, 0.3f); // Hellrot
+        public Color tripleBondColor = Color.white; // Weiß wie Einfachbindung
         
         [Header("Snap Einstellungen")]
         [Tooltip("Snap-Stärke (0 = aus, 1 = instant)")]
