@@ -131,8 +131,15 @@ namespace InsideMatter.Interaction
             
             // AUTO-CREATE VR Controller Input: Bind to B button (right) and Y button (left)
             cycleBondTypeInputAction = new InputAction("CycleBondType", InputActionType.Button);
+            
+            // Generic XR bindings (Oculus Rift/Quest, SteamVR, etc.)
             cycleBondTypeInputAction.AddBinding("<XRController>{RightHand}/secondaryButton");
             cycleBondTypeInputAction.AddBinding("<XRController>{LeftHand}/secondaryButton");
+            
+            // PICO XR specific bindings (PICO 3, PICO 4)
+            cycleBondTypeInputAction.AddBinding("<PXR_Controller>{RightHand}/button/b");
+            cycleBondTypeInputAction.AddBinding("<PXR_Controller>{LeftHand}/button/y");
+            cycleBondTypeInputAction.AddBinding("<PXR_Controller>/secondaryButton"); // Fallback
         }
 
         private void OnEnable()
