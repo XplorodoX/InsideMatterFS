@@ -76,14 +76,21 @@ namespace InsideMatter.Molecule
         private bool isSelected = false;
         
         /// <summary>
+        /// Wurde dieses Atom jemals vom Spieler aufgehoben?
+        /// Atome die noch nie gegriffen wurden, können keine Bindungen eingehen.
+        /// </summary>
+        public bool WasEverGrabbed { get; set; } = false;
+        
+        /// <summary>
         /// Aktuelle Anzahl der Bindungen
         /// </summary>
         public int CurrentBondCount => bondPoints.Count(bp => bp.Occupied);
         
         /// <summary>
         /// Hat dieses Atom noch freie Bindungen?
+        /// Gibt nur true zurück wenn das Atom schon einmal gegriffen wurde.
         /// </summary>
-        public bool HasFreeBond => CurrentBondCount < maxBonds;
+        public bool HasFreeBond => WasEverGrabbed && CurrentBondCount < maxBonds;
         
         /// <summary>
         /// Liste der verbundenen Atome

@@ -19,7 +19,7 @@ namespace InsideMatter.Molecule
         public Material bondMaterial;
         
         [Tooltip("Durchmesser der Bindungs-Zylinder")]
-        public float bondThickness = 0.08f;
+        public float bondThickness = 0.05f;
         
         [Header("Snap Einstellungen")]
         [Tooltip("Snap-Stärke (0 = aus, 1 = instant)")]

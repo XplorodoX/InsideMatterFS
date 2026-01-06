@@ -23,7 +23,7 @@ namespace InsideMatter.Molecule
         public Color previewColor = Color.yellow;
 
         [Tooltip("Dicke der Vorschau-Linie (sollte gleich wie bondThickness im MoleculeManager sein)")]
-        public float previewThickness = 0.08f;
+        public float previewThickness = 0.05f;
         
         [Header("Hint Settings")]
         [Tooltip("Text der angezeigt wird (leer = kein Text)")]
@@ -279,8 +279,7 @@ namespace InsideMatter.Molecule
             // Vorschau verstecken
             HidePreview();
             
-            // Bond-Typ zurücksetzen für nächste Bindung
-            previewBondType = BondType.Single;
+            // Bond-Typ NICHT zurücksetzen - Auswahl bleibt für nächste Bindung erhalten
 
             // Echte Bindung erstellen mit gewähltem Typ
             if (MoleculeManager.Instance != null)

@@ -423,6 +423,9 @@ namespace InsideMatter.Interaction
             // Grab-Position speichern für Bond-Breaking
             grabStartPosition = transform.position;
             
+            // Atom als "wurde gegriffen" markieren - erlaubt jetzt Bonding
+            if (atom != null) atom.WasEverGrabbed = true;
+            
             UnityEngine.Debug.Log($"VR Grabbed atom: {atom?.element ?? "Unknown"}");
         }
 
