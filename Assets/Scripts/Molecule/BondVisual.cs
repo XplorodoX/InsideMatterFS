@@ -20,6 +20,13 @@ namespace InsideMatter.Molecule
             int requiredCylinders = GetCylinderCount(type);
             EnsureCylinderCount(requiredCylinders, material);
             
+            // Farbe basierend auf Bindungstyp holen
+            Color bondColor = Color.white;
+            if (MoleculeManager.Instance != null)
+            {
+                bondColor = MoleculeManager.Instance.GetBondColor(type);
+            }
+            
             // Set dimensions and positions
             float cylinderScaleY = length / 2f; // Unity cylinder is 2 units high
             float offsetAmount = thickness * 1.5f; // Spacing between multiple bonds
@@ -30,6 +37,16 @@ namespace InsideMatter.Molecule
                 cyl.transform.localScale = new Vector3(thickness, cylinderScaleY, thickness);
                 cyl.transform.localPosition = GetLocalPosition(type, i, offsetAmount);
                 cyl.transform.localRotation = Quaternion.identity;
+                
+                // Farbe anwenden
+                Renderer r = cyl.GetComponent<Renderer>();
+                if (r != null)
+                {
+                    MaterialPropertyBlock props = new MaterialPropertyBlock();
+                    props.SetColor("_BaseColor", bondColor);
+                    props.SetColor("_Color", bondColor);
+                    r.SetPropertyBlock(props);
+                }
                 
                 // Ensure active
                 if (!cyl.activeSelf) cyl.SetActive(true);

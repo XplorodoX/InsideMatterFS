@@ -21,6 +21,16 @@ namespace InsideMatter.Molecule
         [Tooltip("Durchmesser der Bindungs-Zylinder")]
         public float bondThickness = 0.05f;
         
+        [Header("Bond Colors")]
+        [Tooltip("Farbe für Einfachbindungen")]
+        public Color singleBondColor = Color.white;
+        
+        [Tooltip("Farbe für Doppelbindungen")]
+        public Color doubleBondColor = new Color(0.3f, 0.6f, 1f); // Hellblau
+        
+        [Tooltip("Farbe für Dreifachbindungen")]
+        public Color tripleBondColor = new Color(1f, 0.3f, 0.3f); // Hellrot
+        
         [Header("Snap Einstellungen")]
         [Tooltip("Snap-Stärke (0 = aus, 1 = instant)")]
         [Range(0f, 1f)]
@@ -398,6 +408,19 @@ namespace InsideMatter.Molecule
                 case BondType.Double: return 2;
                 case BondType.Triple: return 3;
                 default: return 0;
+            }
+        }
+        
+        /// <summary>
+        /// Gibt die Farbe für einen bestimmten Bindungstyp zurück
+        /// </summary>
+        public Color GetBondColor(BondType type)
+        {
+            switch (type)
+            {
+                case BondType.Double: return doubleBondColor;
+                case BondType.Triple: return tripleBondColor;
+                default: return singleBondColor;
             }
         }
     }

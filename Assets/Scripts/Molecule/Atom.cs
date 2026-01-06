@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using TMPro;
 
 namespace InsideMatter.Molecule
 {
@@ -75,6 +76,10 @@ namespace InsideMatter.Molecule
         // Ist dieses Atom gerade ausgewählt/gedragged?
         private bool isSelected = false;
         
+        // Valenz-Anzeige (3D Text über dem Atom)
+        private TextMeshPro valenceLabel;
+        private int lastDisplayedValence = -1;
+        
         /// <summary>
         /// Wurde dieses Atom jemals vom Spieler aufgehoben?
         /// Atome die noch nie gegriffen wurden, können keine Bindungen eingehen.
@@ -109,6 +114,73 @@ namespace InsideMatter.Molecule
         void Start()
         {
             ApplyVisuals();
+            CreateValenceLabel();
+        }
+        
+        void Update()
+        {
+            // Billboard-Effekt: Valenz-Label zeigt immer zur Kamera
+            if (valenceLabel != null && Camera.main != null)
+            {
+                valenceLabel.transform.LookAt(Camera.main.transform);
+                valenceLabel.transform.Rotate(0, 180, 0);
+            }
+            
+            // Valenz aktualisieren wenn sich etwas geändert hat
+            UpdateValenceLabel();
+        }
+        
+        /// <summary>
+        /// Erstellt das 3D-Label für die Valenz-Anzeige
+        /// </summary>
+        private void CreateValenceLabel()
+        {
+            GameObject labelObj = new GameObject("ValenceLabel");
+            labelObj.transform.SetParent(transform);
+            labelObj.transform.localPosition = new Vector3(0, 1.5f, 0); // Über dem Atom
+            
+            valenceLabel = labelObj.AddComponent<TextMeshPro>();
+            valenceLabel.fontSize = 3f;
+            valenceLabel.alignment = TextAlignmentOptions.Center;
+            valenceLabel.color = Color.white;
+            valenceLabel.outlineWidth = 0.2f;
+            valenceLabel.outlineColor = Color.black;
+            
+            // RectTransform für korrekte Größe
+            RectTransform rect = labelObj.GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(2f, 1f);
+            
+            UpdateValenceLabel();
+        }
+        
+        /// <summary>
+        /// Aktualisiert die Valenz-Anzeige
+        /// </summary>
+        public void UpdateValenceLabel()
+        {
+            if (valenceLabel == null) return;
+            
+            // Berechne verfügbare Valenzen (berücksichtigt Bindungsordnung)
+            int usedValence = 0;
+            if (MoleculeManager.Instance != null)
+            {
+                usedValence = MoleculeManager.Instance.CalculateCurrentValence(this);
+            }
+            int freeValence = maxBonds - usedValence;
+            
+            // Nur aktualisieren wenn sich etwas geändert hat
+            if (freeValence == lastDisplayedValence) return;
+            lastDisplayedValence = freeValence;
+            
+            if (freeValence > 0)
+            {
+                valenceLabel.text = $"×{freeValence}";
+                valenceLabel.gameObject.SetActive(true);
+            }
+            else
+            {
+                valenceLabel.gameObject.SetActive(false); // Keine freien Bindungen = verstecken
+            }
         }
         
         /// <summary>
