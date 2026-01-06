@@ -5,6 +5,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using InsideMatter.Molecule;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.InputSystem;
 
 namespace InsideMatter.Interaction
 {
@@ -71,6 +72,9 @@ namespace InsideMatter.Interaction
         [Tooltip("Kraft zum Lösen einer Bindung (Distanz die gezogen werden muss)")]
         public float bondBreakDistance = 0.5f;
 
+        // VR Controller Input - auto-created, no Inspector setup needed
+        private InputAction cycleBondTypeInputAction;
+
         // Bond Preview Tracking
         private Molecule.Atom nearbyAtom;
         private BondPoint currentPreviewBondPointSelf;
@@ -108,34 +112,44 @@ namespace InsideMatter.Interaction
             }
             
             // Configure XR Grab Interactable
-            grabInteractable.movementType = XRBaseInteractable.MovementType.VelocityTracking;
-            grabInteractable.throwOnDetach = true;
-            grabInteractable.throwSmoothingDuration = 0.25f;
+            grabInteractable.movementType = XRBaseInteractable.MovementType.Instantaneous;
+            grabInteractable.throwOnDetach = false; // Disable throwing - atoms stay in place
             grabInteractable.attachEaseInTime = 0.15f;
-            
-            // Set velocity scaling
-            grabInteractable.throwVelocityScale = throwVelocityScale;
-            grabInteractable.throwAngularVelocityScale = throwAngularVelocityScale;
             
             // Subscribe to events
             grabInteractable.selectEntered.AddListener(OnGrabbed);
             grabInteractable.selectExited.AddListener(OnReleased);
             grabInteractable.hoverEntered.AddListener(OnHoverEnter);
             grabInteractable.hoverExited.AddListener(OnHoverExit);
-        }
-
-        private void Start()
-        {
-            // Configure rigidbody for VR interaction
+            
+            // Configure rigidbody - kinematic so atoms stay in place
             if (rb != null)
             {
-                rb.useGravity = false; // Atoms float
-                rb.mass = 0.1f;
-                rb.linearDamping = 1.0f; // Increased damping for weightless feel
-                rb.angularDamping = 1.0f;
-                rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-                rb.interpolation = RigidbodyInterpolation.Interpolate;
-                rb.constraints = RigidbodyConstraints.None;
+                rb.useGravity = false;
+                rb.isKinematic = true;
+            }
+            
+            // AUTO-CREATE VR Controller Input: Bind to B button (right) and Y button (left)
+            cycleBondTypeInputAction = new InputAction("CycleBondType", InputActionType.Button);
+            cycleBondTypeInputAction.AddBinding("<XRController>{RightHand}/secondaryButton");
+            cycleBondTypeInputAction.AddBinding("<XRController>{LeftHand}/secondaryButton");
+        }
+
+        private void OnEnable()
+        {
+            // Enable VR controller input action
+            if (cycleBondTypeInputAction != null)
+            {
+                cycleBondTypeInputAction.Enable();
+            }
+        }
+
+        private void OnDisable()
+        {
+            // Disable VR controller input action
+            if (cycleBondTypeInputAction != null)
+            {
+                cycleBondTypeInputAction.Disable();
             }
         }
 
@@ -150,6 +164,7 @@ namespace InsideMatter.Interaction
             }
         }
         
+
         /// <summary>
         /// Prüft Input für Bond-Typ Wechsel (Single/Double/Triple)
         /// </summary>
@@ -157,26 +172,39 @@ namespace InsideMatter.Interaction
         {
             if (BondPreview.Instance == null) return;
             if (!BondPreview.Instance.IsPreviewActive) return;
-            
-            // Desktop: Tasten 1, 2, 3 für direkten Bond-Typ
-            if (Input.GetKeyDown(KeyCode.Alpha1))
-            {
-                BondPreview.Instance.SetBondType(BondType.Single);
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha2))
-            {
-                BondPreview.Instance.SetBondType(BondType.Double);
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha3))
-            {
-                BondPreview.Instance.SetBondType(BondType.Triple);
-            }
-            
-            // VR: Sekundärer Button (B/Y) zum Durchschalten
-            // Nutze GetButtonDown für XR Controller
-            if (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Space))
+
+            // VR Controller: Secondary Button (B/Y) to cycle bond type
+            if (cycleBondTypeInputAction != null && cycleBondTypeInputAction.WasPressedThisFrame())
             {
                 BondPreview.Instance.CycleBondType();
+                
+                // Haptic feedback on bond type change
+                if (grabInteractable.interactorsSelecting.Count > 0)
+                {
+                    SendHapticFeedback(grabInteractable.interactorsSelecting[0], grabHapticIntensity, hapticDuration);
+                }
+                return;
+            }
+
+            // Desktop fallback: Keyboard input
+            if (Keyboard.current != null)
+            {
+                if (Keyboard.current.digit1Key.wasPressedThisFrame)
+                {
+                    BondPreview.Instance.SetBondType(BondType.Single);
+                }
+                else if (Keyboard.current.digit2Key.wasPressedThisFrame)
+                {
+                    BondPreview.Instance.SetBondType(BondType.Double);
+                }
+                else if (Keyboard.current.digit3Key.wasPressedThisFrame)
+                {
+                    BondPreview.Instance.SetBondType(BondType.Triple);
+                }
+                else if (Keyboard.current.tabKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame)
+                {
+                    BondPreview.Instance.CycleBondType();
+                }
             }
         }
 
@@ -371,6 +399,12 @@ namespace InsideMatter.Interaction
         {
             isGrabbed = true;
             
+            // Make non-kinematic while grabbed for XR movement
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+            }
+            
             // Apply selection highlight
             if (meshRenderer != null)
             {
@@ -386,7 +420,7 @@ namespace InsideMatter.Interaction
             lastRotation = transform.rotation;
             accumulatedRotation = 0f;
 
-            // Grab-Position speichern für Bond-Breaking (obwohl jetzt weniger relevant für Distanz-Check, aber gut für Debugging/Historie)
+            // Grab-Position speichern für Bond-Breaking
             grabStartPosition = transform.position;
             
             UnityEngine.Debug.Log($"VR Grabbed atom: {atom?.element ?? "Unknown"}");
@@ -432,6 +466,14 @@ namespace InsideMatter.Interaction
             
             // Preview verstecken
             HidePreview();
+            
+            // Make kinematic again - stay in place
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+            }
             
             // Tracking zurücksetzen
             nearbyAtom = null;

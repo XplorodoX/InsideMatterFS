@@ -251,18 +251,15 @@ namespace InsideMatter.Molecule
             // WICHTIG: Sicherstellen dass das Visual aktiv ist (das Default-Prefab ist deaktiviert)
             visual.SetActive(true);
             
-            // Material zuweisen
-            if (bondMaterial != null)
+            // FIX: Disable the parent prefab's renderer - only child cylinders from BondVisual should be visible
+            Renderer parentRenderer = visual.GetComponent<Renderer>();
+            if (parentRenderer != null)
             {
-                Renderer renderer = visual.GetComponent<Renderer>();
-                if (renderer != null)
-                {
-                    renderer.material = bondMaterial;
-                }
+                parentRenderer.enabled = false;
             }
             
-            // Anfangsgröße setzen (X und Z für Dicke, Y wird in UpdateVisual gesetzt)
-            visual.transform.localScale = new Vector3(bondThickness, 1f, bondThickness);
+            // FIX: Reset parent scale to 1,1,1 so child cylinder scales are not affected
+            visual.transform.localScale = Vector3.one;
             
             bond.Visual = visual;
             bond.UpdateVisual();
