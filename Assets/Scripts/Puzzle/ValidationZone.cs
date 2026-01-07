@@ -205,7 +205,7 @@ namespace InsideMatter.Puzzle
         private void CreateRectangularBorder()
         {
             float borderThickness = 0.02f; // Dicke des Rands
-            float borderHeight = 0.08f; // Höhe des Rands
+            float borderHeight = 0.2f; // Höhe des Rands (erhöht für bessere Sichtbarkeit)
             
             // 4 Seiten des Rechtecks
             // Vorne (Z+)
