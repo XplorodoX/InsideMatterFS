@@ -1,4 +1,7 @@
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class MenuManager : MonoBehaviour
 {
@@ -11,7 +14,7 @@ public class MenuManager : MonoBehaviour
         ShowMainMenu();
     }
 
-    // ====== Öffentliche Funktionen für Buttons ======
+    // ====== Oeffentliche Funktionen fuer Buttons ======
 
     public void ShowMainMenu()
     {
@@ -27,7 +30,14 @@ public class MenuManager : MonoBehaviour
 
     public void ExitGame()
     {
-        Debug.Log("Spiel wird beendet");
+        Debug.Log("Spiel wird beendet...");
+        
+#if UNITY_EDITOR
+        // Im Editor: Stoppt den Play Mode
+        EditorApplication.isPlaying = false;
+#else
+        // Im Build (VR/Standalone): Beendet die Anwendung
         Application.Quit();
+#endif
     }
 }
