@@ -70,10 +70,11 @@ namespace InsideMatter.Molecule
         /// </summary>
         public void UpdateVisual()
         {
-            if (Visual == null || BondPointA == null || BondPointB == null) return;
+            if (Visual == null || AtomA == null || AtomB == null) return;
             
-            Vector3 posA = BondPointA.transform.position;
-            Vector3 posB = BondPointB.transform.position;
+            // NEU: Verwende Atom-Zentren statt BondPoint-Positionen für stabile Bindungslänge
+            Vector3 posA = AtomA.transform.position;
+            Vector3 posB = AtomB.transform.position;
             Vector3 center = (posA + posB) / 2f;
             Vector3 direction = posB - posA;
             float distance = direction.magnitude;

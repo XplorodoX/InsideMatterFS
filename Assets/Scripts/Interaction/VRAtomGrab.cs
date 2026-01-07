@@ -467,6 +467,9 @@ namespace InsideMatter.Interaction
                     // Starkes Haptic Feedback bei erfolgreicher Bindung
                     SendHapticFeedback(args.interactorObject, bondConfirmHapticIntensity, hapticDuration * 2f);
                     UnityEngine.Debug.Log($"Bond SUCCESS: {atom?.element ?? "Unknown"}");
+                    
+                    // NEU: Molekül-Tracking neu initialisieren für aktualisierte Struktur
+                    InitializeMoleculeTracking();
                 }
                 else
                 {

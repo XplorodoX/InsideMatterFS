@@ -12,8 +12,14 @@ namespace InsideMatter.Puzzle
     public class ValidationZone : MonoBehaviour
     {
         [Header("Zone Einstellungen")]
-        [Tooltip("Radius der Validierungszone")]
-        public float zoneRadius = 0.4f;
+        [Tooltip("Automatisch Größe vom GameObject übernehmen (Collider/Renderer)")]
+        public bool autoDetectSize = true;
+        
+        [Tooltip("Breite der Validierungszone (X-Achse) - wird überschrieben wenn autoDetectSize aktiv")]
+        public float zoneWidth = 0.5f;
+        
+        [Tooltip("Tiefe der Validierungszone (Z-Achse) - wird überschrieben wenn autoDetectSize aktiv")]
+        public float zoneDepth = 0.4f;
         
         [Tooltip("Höhe der Zone über dem Tisch")]
         public float zoneHeight = 0.3f;
@@ -61,9 +67,61 @@ namespace InsideMatter.Puzzle
         
         void Awake()
         {
+            // Automatisch Größe erkennen
+            if (autoDetectSize)
+            {
+                DetectSizeFromGameObject();
+            }
+            
             CreateZoneVisual();
             currentBaseColor = emptyColor;
             UpdateStatus("Platziere dein Molekül hier");
+        }
+        
+        /// <summary>
+        /// Erkennt automatisch die Größe vom Collider oder Renderer des GameObjects
+        /// </summary>
+        private void DetectSizeFromGameObject()
+        {
+            Bounds bounds = new Bounds(transform.position, Vector3.zero);
+            bool foundBounds = false;
+            
+            // Versuche vom Collider zu lesen
+            Collider col = GetComponent<Collider>();
+            if (col != null && !(col is SphereCollider) && !(col is CapsuleCollider))
+            {
+                bounds = col.bounds;
+                foundBounds = true;
+                
+                // Alten Collider entfernen (wir erstellen unseren eigenen Trigger)
+                Destroy(col);
+            }
+            
+            // Falls kein Collider, versuche Renderer
+            if (!foundBounds)
+            {
+                Renderer rend = GetComponent<Renderer>();
+                if (rend == null) rend = GetComponentInChildren<Renderer>();
+                
+                if (rend != null)
+                {
+                    bounds = rend.bounds;
+                    foundBounds = true;
+                }
+            }
+            
+            if (foundBounds)
+            {
+                // Größe übernehmen (etwas kleiner als das Objekt für saubere Visuals)
+                zoneWidth = bounds.size.x * 0.9f;
+                zoneDepth = bounds.size.z * 0.9f;
+                
+                Debug.Log($"[ValidationZone] Größe automatisch erkannt: {zoneWidth:F2} x {zoneDepth:F2}");
+            }
+            else
+            {
+                Debug.LogWarning("[ValidationZone] Keine Bounds gefunden - verwende manuelle Größe");
+            }
         }
         
         void Update()
@@ -100,37 +158,31 @@ namespace InsideMatter.Puzzle
         /// </summary>
         private void CreateZoneVisual()
         {
-            // Zylinder als Basis
-            GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            visual.name = "ZoneVisual";
-            visual.transform.SetParent(transform);
-            visual.transform.localPosition = new Vector3(0, zoneHeight / 2f, 0);
-            visual.transform.localScale = new Vector3(zoneRadius * 2f, 0.02f, zoneRadius * 2f);
+            // === RECHTECKIGER RAND erstellen ===
+            CreateRectangularBorder();
             
-            // Collider als Trigger
-            Collider visualCollider = visual.GetComponent<Collider>();
-            if (visualCollider != null) Destroy(visualCollider);
+            // === Boden-Platte (sehr transparent) ===
+            GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            floor.name = "ZoneFloor";
+            floor.transform.SetParent(transform);
+            floor.transform.localPosition = new Vector3(0, 0.005f, 0);
+            floor.transform.localScale = new Vector3(zoneWidth, 0.01f, zoneDepth);
             
-            // Material erstellen
-            zoneRenderer = visual.GetComponent<MeshRenderer>();
-            zoneMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            zoneMaterial.SetFloat("_Surface", 1); // Transparent
-            zoneMaterial.SetFloat("_Blend", 0);
-            zoneMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            zoneMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            zoneMaterial.SetInt("_ZWrite", 0);
-            zoneMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-            zoneMaterial.renderQueue = 3000;
-            zoneMaterial.SetColor("_BaseColor", emptyColor);
-            zoneRenderer.material = zoneMaterial;
+            Collider floorCollider = floor.GetComponent<Collider>();
+            if (floorCollider != null) Destroy(floorCollider);
             
-            // Trigger-Collider für Erkennung
-            SphereCollider trigger = gameObject.AddComponent<SphereCollider>();
+            // Sehr transparentes Material für Boden
+            MeshRenderer floorRenderer = floor.GetComponent<MeshRenderer>();
+            Material floorMat = CreateTransparentMaterial(new Color(1f, 1f, 1f, 0.15f));
+            floorRenderer.material = floorMat;
+            
+            // === Trigger-Collider für Erkennung (Box statt Sphere) ===
+            BoxCollider trigger = gameObject.AddComponent<BoxCollider>();
             trigger.isTrigger = true;
-            trigger.radius = zoneRadius;
+            trigger.size = new Vector3(zoneWidth, zoneHeight, zoneDepth);
             trigger.center = new Vector3(0, zoneHeight / 2f, 0);
             
-            // Statustext erstellen
+            // === Statustext erstellen ===
             if (statusText == null)
             {
                 GameObject textObj = new GameObject("StatusText");
@@ -145,6 +197,74 @@ namespace InsideMatter.Puzzle
                 RectTransform rect = textObj.GetComponent<RectTransform>();
                 rect.sizeDelta = new Vector2(1f, 0.5f);
             }
+        }
+        
+        /// <summary>
+        /// Erstellt einen rechteckigen Rand um die Zone
+        /// </summary>
+        private void CreateRectangularBorder()
+        {
+            float borderThickness = 0.02f; // Dicke des Rands
+            float borderHeight = 0.08f; // Höhe des Rands
+            
+            // 4 Seiten des Rechtecks
+            // Vorne (Z+)
+            CreateBorderEdge("Front", new Vector3(0, borderHeight / 2f, zoneDepth / 2f), 
+                             new Vector3(zoneWidth, borderHeight, borderThickness));
+            // Hinten (Z-)
+            CreateBorderEdge("Back", new Vector3(0, borderHeight / 2f, -zoneDepth / 2f), 
+                             new Vector3(zoneWidth, borderHeight, borderThickness));
+            // Links (X-)
+            CreateBorderEdge("Left", new Vector3(-zoneWidth / 2f, borderHeight / 2f, 0), 
+                             new Vector3(borderThickness, borderHeight, zoneDepth));
+            // Rechts (X+)
+            CreateBorderEdge("Right", new Vector3(zoneWidth / 2f, borderHeight / 2f, 0), 
+                             new Vector3(borderThickness, borderHeight, zoneDepth));
+        }
+        
+        /// <summary>
+        /// Erstellt eine Kante des rechteckigen Rands
+        /// </summary>
+        private void CreateBorderEdge(string name, Vector3 position, Vector3 scale)
+        {
+            GameObject edge = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            edge.name = $"Border_{name}";
+            edge.transform.SetParent(transform);
+            edge.transform.localPosition = position;
+            edge.transform.localScale = scale;
+            
+            // Collider entfernen
+            Collider col = edge.GetComponent<Collider>();
+            if (col != null) Destroy(col);
+            
+            // Material
+            MeshRenderer rend = edge.GetComponent<MeshRenderer>();
+            if (zoneRenderer == null) zoneRenderer = rend;
+            zoneMaterial = CreateTransparentMaterial(emptyColor);
+            rend.material = zoneMaterial;
+        }
+        
+        /// <summary>
+        /// Erstellt ein transparentes Material
+        /// </summary>
+        private Material CreateTransparentMaterial(Color color)
+        {
+            Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null) shader = Shader.Find("Standard");
+            
+            Material mat = new Material(shader);
+            mat.SetFloat("_Surface", 1); // Transparent
+            mat.SetFloat("_Blend", 0);
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            mat.renderQueue = 3000;
+            mat.SetColor("_BaseColor", color);
+            mat.SetColor("_Color", color);
+            mat.SetColor("_EmissionColor", color * 0.5f); // Leichtes Glühen
+            mat.EnableKeyword("_EMISSION");
+            return mat;
         }
         
         void OnTriggerEnter(Collider other)

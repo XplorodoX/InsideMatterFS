@@ -94,8 +94,17 @@ namespace InsideMatter.Molecule
         /// <summary>
         /// Hat dieses Atom noch freie Bindungen?
         /// Gibt nur true zurück wenn das Atom schon einmal gegriffen wurde.
+        /// Berücksichtigt Bindungsordnung: Doppelbindung = 2, Dreifachbindung = 3
         /// </summary>
-        public bool HasFreeBond => WasEverGrabbed && CurrentBondCount < maxBonds;
+        public bool HasFreeBond
+        {
+            get
+            {
+                if (!WasEverGrabbed) return false;
+                int usedValence = MoleculeManager.Instance?.CalculateCurrentValence(this) ?? 0;
+                return usedValence < maxBonds;
+            }
+        }
         
         /// <summary>
         /// Liste der verbundenen Atome

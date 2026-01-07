@@ -118,6 +118,23 @@ namespace InsideMatter.Molecule
                 return;
             }
             
+            // NEU: Valenz-Check vor Bindungserstellung
+            int bondCost = GetBondCost(bondType);
+            int valenceA = CalculateCurrentValence(atomA);
+            int valenceB = CalculateCurrentValence(atomB);
+            
+            if (valenceA + bondCost > atomA.maxBonds)
+            {
+                Debug.LogWarning($"Kann {bondType}-Bindung nicht erstellen: {atomA.element} überschreitet Valenz ({valenceA + bondCost} > {atomA.maxBonds})");
+                return;
+            }
+            
+            if (valenceB + bondCost > atomB.maxBonds)
+            {
+                Debug.LogWarning($"Kann {bondType}-Bindung nicht erstellen: {atomB.element} überschreitet Valenz ({valenceB + bondCost} > {atomB.maxBonds})");
+                return;
+            }
+            
             // 1. Atome ausrichten und snappen (Instant beim Festigen)
             SnapAtoms(bondPointA, bondPointB, true);
             
@@ -148,10 +165,27 @@ namespace InsideMatter.Molecule
                 joint.breakTorque = float.PositiveInfinity;
                 bond.Joint = joint;
             }
+            
+            // 7. NEU: Rotation einfrieren für beide Atome (verhindert Bindungs-Dehnung)
+            FreezeAtomRotation(atomA);
+            FreezeAtomRotation(atomB);
            
             if (debugMode)
             {
-                Debug.Log($"Bindung erstellt: {atomA.element} <-> {atomB.element} (Physik verbunden)");
+                Debug.Log($"Bindung erstellt: {atomA.element} <-> {atomB.element} (Physik verbunden, Rotation eingefroren)");
+            }
+        }
+        
+        /// <summary>
+        /// Friert die Rotation eines Atoms ein (nach Bindung)
+        /// </summary>
+        private void FreezeAtomRotation(Atom atom)
+        {
+            if (atom == null) return;
+            Rigidbody rb = atom.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.constraints = RigidbodyConstraints.FreezeRotation;
             }
         }
         
