@@ -145,7 +145,8 @@ namespace InsideMatter.Molecule
             // 3. Bond-Objekt erstellen mit gewähltem Typ
             Bond bond = new Bond(atomA, atomB, bondPointA, bondPointB);
             bond.Type = bondType; // Bond-Typ setzen (Single/Double/Triple)
-            bond.SetFixedLength(minAtomDistance); // FIXE Bindungslänge setzen!
+            // WICHTIG: Verwende die Konstante aus Bond.cs für konsistente kürzere Bindungen!
+            bond.SetFixedLength(Bond.DEFAULT_BOND_LENGTH);
             bonds.Add(bond);
             
             // 4. Logische Verbindung registrieren
@@ -338,7 +339,8 @@ namespace InsideMatter.Molecule
             // NUR Position anpassen - KEINE Rotation mehr!
             // Das bewahrt die vom Nutzer festgelegte Ausrichtung
             Vector3 dirFixed = (fixedBP.transform.position - fixedAtom.transform.position).normalized;
-            Vector3 targetPos = fixedAtom.transform.position + dirFixed * minAtomDistance;
+            // Verwende die konstante Bond-Länge für konsistente kurze Bindungen
+            Vector3 targetPos = fixedAtom.transform.position + dirFixed * Bond.DEFAULT_BOND_LENGTH;
             
             movingAtom.transform.position = Vector3.Lerp(
                 movingAtom.transform.position,
