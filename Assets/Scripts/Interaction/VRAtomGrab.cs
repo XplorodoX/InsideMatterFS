@@ -122,9 +122,12 @@ namespace InsideMatter.Interaction
             grabInteractable.throwOnDetach = false; // Disable throwing - atoms stay in place
             grabInteractable.attachEaseInTime = 0.0f; // Kein Easing - sofort greifen
             
-            // KRITISCH: Rotation-Tracking DEAKTIVIEREN!
-            // Sonst richtet sich das Atom an der Controller-Rotation aus!
-            grabInteractable.trackRotation = false;
+            // KRITISCH: Dynamic Attach aktivieren!
+            // Das verhindert das Snap-to-Center beim Greifen,
+            // ABER erlaubt weiterhin Rotation via Controller/Stick!
+            grabInteractable.useDynamicAttach = true;
+            grabInteractable.trackRotation = true; // Rotation-Tracking wieder AN für Stick-Rotation
+            grabInteractable.matchAttachRotation = false; // NICHT an Controller-Rotation anpassen beim Start!
             
             // Subscribe to events
             grabInteractable.selectEntered.AddListener(OnGrabbed);
