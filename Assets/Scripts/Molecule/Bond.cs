@@ -5,6 +5,7 @@ namespace InsideMatter.Molecule
     /// <summary>
     /// Repräsentiert eine chemische Bindung zwischen zwei Atomen.
     /// Enthält sowohl die logische Verbindung als auch die visuelle Darstellung.
+    /// Bindungslängen sind FIXIERT und ändern sich nie nach der Erstellung.
     /// </summary>
     public class Bond
     {
@@ -28,6 +29,12 @@ namespace InsideMatter.Molecule
         // Bindungsstärke (für Physik/Gameplay)
         public float Strength { get; set; }
         
+        // FIXE Bindungslänge - wird beim Erstellen gesetzt und ändert sich NIE
+        public float FixedBondLength { get; private set; }
+        
+        // Standard-Bindungslänge falls nicht anders angegeben
+        public const float DEFAULT_BOND_LENGTH = 0.7f;
+        
         public Bond(Atom atomA, Atom atomB, BondPoint bondPointA, BondPoint bondPointB)
         {
             AtomA = atomA;
@@ -36,6 +43,17 @@ namespace InsideMatter.Molecule
             BondPointB = bondPointB;
             Type = BondType.Single;
             Strength = 1.0f;
+            
+            // Fixe Bindungslänge beim Erstellen setzen (Standard-Wert)
+            FixedBondLength = DEFAULT_BOND_LENGTH;
+        }
+        
+        /// <summary>
+        /// Setzt die fixe Bindungslänge (nur einmal beim Erstellen aufrufen!)
+        /// </summary>
+        public void SetFixedLength(float length)
+        {
+            FixedBondLength = length;
         }
         
         /// <summary>
@@ -67,21 +85,21 @@ namespace InsideMatter.Molecule
 
         /// <summary>
         /// Aktualisiert die Position der visuellen Darstellung
+        /// Verwendet die FIXE Bindungslänge - ändert sich nie!
         /// </summary>
         public void UpdateVisual()
         {
             if (Visual == null || AtomA == null || AtomB == null) return;
             
-            // NEU: Verwende Atom-Zentren statt BondPoint-Positionen für stabile Bindungslänge
+            // Berechne Mittelpunkt und Richtung zwischen den Atomen
             Vector3 posA = AtomA.transform.position;
             Vector3 posB = AtomB.transform.position;
             Vector3 center = (posA + posB) / 2f;
             Vector3 direction = posB - posA;
-            float distance = direction.magnitude;
             
-            // Position & Rotation
+            // Position & Rotation des Visuals
             Visual.transform.position = center;
-            if (distance > 0.001f)
+            if (direction.magnitude > 0.001f)
             {
                 Visual.transform.up = direction.normalized;
             }
@@ -97,14 +115,15 @@ namespace InsideMatter.Molecule
             Material mat = null;
             if (MoleculeManager.Instance != null) mat = MoleculeManager.Instance.bondMaterial;
             
-            // Visuals aktualisieren
+            // Visuals mit FIXER Länge aktualisieren (nicht dynamisch!)
             float thickness = 0.08f;
             if (MoleculeManager.Instance != null) thickness = MoleculeManager.Instance.bondThickness;
             
-            visualComp.UpdateVisuals(Type, distance, thickness, mat);
+            // WICHTIG: Verwende FixedBondLength statt der aktuellen Distanz!
+            visualComp.UpdateVisuals(Type, FixedBondLength, thickness, mat);
             
-            // Collider für Interaktion anpassen
-            UpdateCollider(distance, thickness);
+            // Collider mit fixer Länge
+            UpdateCollider(FixedBondLength, thickness);
         }
         
         private void UpdateCollider(float length, float thickness)

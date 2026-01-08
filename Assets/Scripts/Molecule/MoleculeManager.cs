@@ -19,7 +19,7 @@ namespace InsideMatter.Molecule
         public Material bondMaterial;
         
         [Tooltip("Durchmesser der Bindungs-Zylinder")]
-        public float bondThickness = 0.03f; // Dünnere Linien
+        public float bondThickness = 0.015f; // Dünne Linien
         
         [Header("Bond Colors")]
         [Tooltip("Farbe für Einfachbindungen")]
@@ -145,6 +145,7 @@ namespace InsideMatter.Molecule
             // 3. Bond-Objekt erstellen mit gewähltem Typ
             Bond bond = new Bond(atomA, atomB, bondPointA, bondPointB);
             bond.Type = bondType; // Bond-Typ setzen (Single/Double/Triple)
+            bond.SetFixedLength(minAtomDistance); // FIXE Bindungslänge setzen!
             bonds.Add(bond);
             
             // 4. Logische Verbindung registrieren
@@ -246,36 +247,93 @@ namespace InsideMatter.Molecule
         
         /// <summary>
         /// Richtet zwei Atome aneinander aus (Snapping)
+        /// NUR das Atom ohne bestehende Bindungen wird bewegt, um Bindungslängen zu erhalten.
         /// </summary>
         private void SnapAtoms(BondPoint bondPointA, BondPoint bondPointB, bool instant = false)
         {
             Atom atomA = bondPointA.ParentAtom;
             Atom atomB = bondPointB.ParentAtom;
             
+            // Prüfen welches Atom bereits Bindungen hat
+            bool atomAHasBonds = GetBondsForAtom(atomA).Count > 0;
+            bool atomBHasBonds = GetBondsForAtom(atomB).Count > 0;
+            
+            // Fallunterscheidung:
+            // 1. Beide haben Bindungen -> keine Positionsänderung (nur FixedJoint wird erstellt)
+            // 2. Nur A hat Bindungen -> B wird bewegt
+            // 3. Nur B hat Bindungen -> A wird bewegt
+            // 4. Keins hat Bindungen -> B wird bewegt (Standard-Verhalten)
+            
+            if (atomAHasBonds && atomBHasBonds)
+            {
+                // Beide Atome sind bereits Teil von Molekülen - keine Positionsänderung
+                // Die FixedJoints werden die Verbindung herstellen
+                if (debugMode)
+                {
+                    Debug.Log($"SnapAtoms: Beide Atome haben Bindungen - keine Positionsänderung");
+                }
+                return;
+            }
+            
             float strength = instant ? 1.0f : snapStrength;
             
-            // Position von atomB so anpassen, dass es den minAtomDistance Abstand zu atomA hält
-            Vector3 dirA = (bondPointA.transform.position - atomA.transform.position).normalized;
-            Vector3 targetPos = atomA.transform.position + dirA * minAtomDistance;
+            // Bestimme welches Atom bewegt wird (das ohne Bindungen)
+            Atom fixedAtom;      // Atom das stehen bleibt
+            Atom movingAtom;     // Atom das bewegt wird
+            BondPoint fixedBP;   // BondPoint des festen Atoms
+            BondPoint movingBP;  // BondPoint des bewegten Atoms
             
-            // Snap mit Lerp
-            atomB.transform.position = Vector3.Lerp(
-                atomB.transform.position,
+            if (atomAHasBonds)
+            {
+                // A hat Bindungen -> A bleibt, B wird bewegt
+                fixedAtom = atomA;
+                movingAtom = atomB;
+                fixedBP = bondPointA;
+                movingBP = bondPointB;
+            }
+            else
+            {
+                // A hat keine Bindungen (oder beide haben keine) -> A bleibt, B wird bewegt
+                // (Standard-Verhalten beibehalten für Kompatibilität)
+                fixedAtom = atomA;
+                movingAtom = atomB;
+                fixedBP = bondPointA;
+                movingBP = bondPointB;
+            }
+            
+            // Falls B Bindungen hat aber A nicht -> A wird bewegt
+            if (atomBHasBonds && !atomAHasBonds)
+            {
+                fixedAtom = atomB;
+                movingAtom = atomA;
+                fixedBP = bondPointB;
+                movingBP = bondPointA;
+            }
+            
+            // Position des bewegten Atoms anpassen
+            Vector3 dirFixed = (fixedBP.transform.position - fixedAtom.transform.position).normalized;
+            Vector3 targetPos = fixedAtom.transform.position + dirFixed * minAtomDistance;
+            
+            movingAtom.transform.position = Vector3.Lerp(
+                movingAtom.transform.position,
                 targetPos,
                 strength
             );
             
             // Rotation anpassen: BondPoints sollen entgegengesetzt zeigen
-            Vector3 dirB = (bondPointB.transform.position - atomB.transform.position).normalized;
+            Vector3 dirMoving = (movingBP.transform.position - movingAtom.transform.position).normalized;
+            Quaternion targetRot = Quaternion.FromToRotation(dirMoving, -dirFixed) * movingAtom.transform.rotation;
             
-            // Zielrichtung: bondPointB soll in Richtung -dirA zeigen
-            Quaternion targetRot = Quaternion.FromToRotation(dirB, -dirA) * atomB.transform.rotation;
-            
-            atomB.transform.rotation = Quaternion.Lerp(
-                atomB.transform.rotation,
+            movingAtom.transform.rotation = Quaternion.Lerp(
+                movingAtom.transform.rotation,
                 targetRot,
                 strength
             );
+            
+            if (debugMode)
+            {
+                Debug.Log($"SnapAtoms: {movingAtom.element} wurde zu {fixedAtom.element} bewegt");
+            }
         }
         
         /// <summary>
