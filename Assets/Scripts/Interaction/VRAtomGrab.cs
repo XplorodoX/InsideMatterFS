@@ -413,10 +413,12 @@ namespace InsideMatter.Interaction
         {
             isGrabbed = true;
             
-            // Make non-kinematic while grabbed for XR movement
+            // WICHTIG: Rigidbody bleibt kinematisch!
+            // XRGrabInteractable mit MovementType.Instantaneous kann kinematische Objekte bewegen.
+            // Wenn wir non-kinematic machen, versuchen die ConfigurableJoints das Molekül neu auszurichten!
             if (rb != null)
             {
-                rb.isKinematic = false;
+                rb.isKinematic = true;
             }
             
             // Apply selection highlight
