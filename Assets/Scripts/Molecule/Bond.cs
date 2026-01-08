@@ -37,7 +37,7 @@ namespace InsideMatter.Molecule
         public float FixedBondLength { get; private set; }
         
         // Standard-Bindungslänge falls nicht anders angegeben
-        public const float DEFAULT_BOND_LENGTH = 0.7f;
+        public const float DEFAULT_BOND_LENGTH = 0.35f;
         
         public Bond(Atom atomA, Atom atomB, BondPoint bondPointA, BondPoint bondPointB)
         {

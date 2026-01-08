@@ -37,7 +37,7 @@ namespace InsideMatter.Molecule
         public float snapStrength = 0.5f;
         
         [Tooltip("Mindestabstand zwischen Atomen nach dem Snapping (Sorgt für sichtbare Bindungs-Stangen)")]
-        public float minAtomDistance = 0.7f;
+        public float minAtomDistance = 0.35f;
         
         [Header("Debug")]
         [Tooltip("Zeige Debug-Informationen in der Konsole")]
@@ -276,6 +276,7 @@ namespace InsideMatter.Molecule
         /// <summary>
         /// Richtet zwei Atome aneinander aus (Snapping)
         /// NUR das Atom ohne bestehende Bindungen wird bewegt, um Bindungslängen zu erhalten.
+        /// WICHTIG: Rotation wird NICHT mehr geändert - Nutzer behält Kontrolle über Ausrichtung!
         /// </summary>
         private void SnapAtoms(BondPoint bondPointA, BondPoint bondPointB, bool instant = false)
         {
@@ -309,7 +310,6 @@ namespace InsideMatter.Molecule
             Atom fixedAtom;      // Atom das stehen bleibt
             Atom movingAtom;     // Atom das bewegt wird
             BondPoint fixedBP;   // BondPoint des festen Atoms
-            BondPoint movingBP;  // BondPoint des bewegten Atoms
             
             if (atomAHasBonds)
             {
@@ -317,7 +317,6 @@ namespace InsideMatter.Molecule
                 fixedAtom = atomA;
                 movingAtom = atomB;
                 fixedBP = bondPointA;
-                movingBP = bondPointB;
             }
             else
             {
@@ -326,7 +325,6 @@ namespace InsideMatter.Molecule
                 fixedAtom = atomA;
                 movingAtom = atomB;
                 fixedBP = bondPointA;
-                movingBP = bondPointB;
             }
             
             // Falls B Bindungen hat aber A nicht -> A wird bewegt
@@ -335,10 +333,10 @@ namespace InsideMatter.Molecule
                 fixedAtom = atomB;
                 movingAtom = atomA;
                 fixedBP = bondPointB;
-                movingBP = bondPointA;
             }
             
-            // Position des bewegten Atoms anpassen
+            // NUR Position anpassen - KEINE Rotation mehr!
+            // Das bewahrt die vom Nutzer festgelegte Ausrichtung
             Vector3 dirFixed = (fixedBP.transform.position - fixedAtom.transform.position).normalized;
             Vector3 targetPos = fixedAtom.transform.position + dirFixed * minAtomDistance;
             
@@ -348,19 +346,12 @@ namespace InsideMatter.Molecule
                 strength
             );
             
-            // Rotation anpassen: BondPoints sollen entgegengesetzt zeigen
-            Vector3 dirMoving = (movingBP.transform.position - movingAtom.transform.position).normalized;
-            Quaternion targetRot = Quaternion.FromToRotation(dirMoving, -dirFixed) * movingAtom.transform.rotation;
-            
-            movingAtom.transform.rotation = Quaternion.Lerp(
-                movingAtom.transform.rotation,
-                targetRot,
-                strength
-            );
+            // ENTFERNT: Keine automatische Rotation mehr!
+            // Früher wurde hier die Rotation angepasst, was zu ungewolltem Neuausrichten führte.
             
             if (debugMode)
             {
-                Debug.Log($"SnapAtoms: {movingAtom.element} wurde zu {fixedAtom.element} bewegt");
+                Debug.Log($"SnapAtoms: {movingAtom.element} wurde zu {fixedAtom.element} bewegt (nur Position, keine Rotation)");
             }
         }
         
@@ -391,12 +382,39 @@ namespace InsideMatter.Molecule
             // FIX: Reset parent scale to 1,1,1 so child cylinder scales are not affected
             visual.transform.localScale = Vector3.one;
             
+            // NEU: Bond greifbar machen für VR
+            // Rigidbody hinzufügen (kinematisch)
+            Rigidbody bondRb = visual.GetComponent<Rigidbody>();
+            if (bondRb == null)
+            {
+                bondRb = visual.AddComponent<Rigidbody>();
+            }
+            bondRb.isKinematic = true;
+            bondRb.useGravity = false;
+            
+            // XRGrabInteractable hinzufügen
+            var grabInteractable = visual.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+            if (grabInteractable == null)
+            {
+                grabInteractable = visual.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+            }
+            grabInteractable.movementType = UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable.MovementType.Instantaneous;
+            grabInteractable.throwOnDetach = false;
+            
+            // BondGrabHandler hinzufügen und initialisieren
+            var grabHandler = visual.GetComponent<Interaction.BondGrabHandler>();
+            if (grabHandler == null)
+            {
+                grabHandler = visual.AddComponent<Interaction.BondGrabHandler>();
+            }
+            grabHandler.Initialize(bond);
+            
             bond.Visual = visual;
             bond.UpdateVisual();
             
             if (debugMode)
             {
-                Debug.Log($"Bond Visual erstellt zwischen {bond.AtomA.element} und {bond.AtomB.element}");
+                Debug.Log($"Bond Visual erstellt zwischen {bond.AtomA.element} und {bond.AtomB.element} (VR-greifbar)");
             }
         }
         
