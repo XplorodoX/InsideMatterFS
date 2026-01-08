@@ -20,7 +20,11 @@ namespace InsideMatter.Molecule
         // Visuelle Darstellung der Bindung
         public GameObject Visual { get; set; }
         
-        // Physikalische Verbindung
+        // Physikalische Verbindung (ConfigurableJoint für maximale Stabilität)
+        public ConfigurableJoint ConfigJoint { get; set; }
+        
+        // Legacy-Kompatibilität
+        [System.Obsolete("Use ConfigJoint instead")]
         public FixedJoint Joint { get; set; }
 
         // Bindungstyp (für spätere Erweiterungen: Einfach-, Doppel-, Dreifachbindung)

@@ -155,39 +155,47 @@ namespace InsideMatter.Molecule
             // 5. Visuelle Darstellung erstellen
             CreateBondVisual(bond);
             
-            // 6. Physikalisches Festigen (FIXED JOINT)
+            // 6. Physikalisches Festigen - ConfigurableJoint mit komplett gesperrten Achsen
             Rigidbody rbA = atomA.GetComponent<Rigidbody>();
             Rigidbody rbB = atomB.GetComponent<Rigidbody>();
             if (rbA != null && rbB != null)
             {
-                FixedJoint joint = atomA.gameObject.AddComponent<FixedJoint>();
+                // ConfigurableJoint für maximale Stabilität
+                ConfigurableJoint joint = atomA.gameObject.AddComponent<ConfigurableJoint>();
                 joint.connectedBody = rbB;
+                
+                // ALLE Bewegung und Rotation sperren
+                joint.xMotion = ConfigurableJointMotion.Locked;
+                joint.yMotion = ConfigurableJointMotion.Locked;
+                joint.zMotion = ConfigurableJointMotion.Locked;
+                joint.angularXMotion = ConfigurableJointMotion.Locked;
+                joint.angularYMotion = ConfigurableJointMotion.Locked;
+                joint.angularZMotion = ConfigurableJointMotion.Locked;
+                
+                // Unzerstörbar
                 joint.breakForce = float.PositiveInfinity;
                 joint.breakTorque = float.PositiveInfinity;
-                bond.Joint = joint;
+                
+                bond.ConfigJoint = joint;
+                
+                // WICHTIG: Beide Atome kinematisch machen um Physik-Drift zu verhindern
+                // Sie können immer noch per XR-Grab bewegt werden
+                rbA.isKinematic = true;
+                rbB.isKinematic = true;
             }
             
-            // 7. NEU: Rotation einfrieren für beide Atome (verhindert Bindungs-Dehnung)
-            FreezeAtomRotation(atomA);
-            FreezeAtomRotation(atomB);
-           
             if (debugMode)
             {
-                Debug.Log($"Bindung erstellt: {atomA.element} <-> {atomB.element} (Physik verbunden, Rotation eingefroren)");
+                Debug.Log($"Bindung erstellt: {atomA.element} <-> {atomB.element} (Kinamatisch, Locked Joint)");
             }
         }
         
         /// <summary>
-        /// Friert die Rotation eines Atoms ein (nach Bindung)
+        /// Friert die Rotation eines Atoms ein (nach Bindung) - DEPRECATED, jetzt kinematisch
         /// </summary>
         private void FreezeAtomRotation(Atom atom)
         {
-            if (atom == null) return;
-            Rigidbody rb = atom.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.constraints = RigidbodyConstraints.FreezeRotation;
-            }
+            // Nicht mehr benötigt - Atome sind jetzt kinematisch
         }
         
         /// <summary>
@@ -214,14 +222,34 @@ namespace InsideMatter.Molecule
                 Destroy(bond.Visual);
             }
 
-            // Physik lösen
+            // ConfigurableJoint zerstören
+            if (bond.ConfigJoint != null)
+            {
+                Destroy(bond.ConfigJoint);
+            }
+            
+            // Legacy: FixedJoint zerstören falls vorhanden
+            #pragma warning disable CS0618
             if (bond.Joint != null)
             {
                 Destroy(bond.Joint);
             }
+            #pragma warning restore CS0618
             
             // Aus Liste entfernen
             bonds.Remove(bond);
+            
+            // Prüfen ob Atome noch andere Bindungen haben - wenn nicht, wieder beweglich machen
+            if (bond.AtomA != null && GetBondsForAtom(bond.AtomA).Count == 0)
+            {
+                Rigidbody rbA = bond.AtomA.GetComponent<Rigidbody>();
+                if (rbA != null) rbA.isKinematic = false;
+            }
+            if (bond.AtomB != null && GetBondsForAtom(bond.AtomB).Count == 0)
+            {
+                Rigidbody rbB = bond.AtomB.GetComponent<Rigidbody>();
+                if (rbB != null) rbB.isKinematic = false;
+            }
             
             if (debugMode)
             {

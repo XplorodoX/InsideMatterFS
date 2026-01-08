@@ -59,11 +59,14 @@ namespace InsideMatter.Molecule
                 new Vector3(-1, -1, 1).normalized
             } },
 
-            { "Fe", new Vector3[] { // 6 Bindungen (Oktaedrisch)
-                Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back
+            { "Fe", new Vector3[] { // 3 Bindungen (Pyramidal wie N)
+                new Vector3(0.94f, 0, -0.33f),
+                new Vector3(-0.47f, 0.81f, -0.33f),
+                new Vector3(-0.47f, -0.81f, -0.33f)
             } },
-            { "Ca", new Vector3[] { // 6 Bindungen (Oktaedrisch)
-                Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back
+            { "Ca", new Vector3[] { // 2 Bindungen (Gewinkelt wie O)
+                new Vector3(0, 0.407f, 0.914f),
+                new Vector3(0, -0.407f, 0.914f)
             } }
         };
        

@@ -91,7 +91,9 @@ namespace InsideMatter.Interaction
 
         // Molecule Movement Tracking (Rigid body movement for entire molecule)
         private Dictionary<Molecule.Atom, Vector3> moleculeAtomOffsets = new Dictionary<Molecule.Atom, Vector3>();
+        private Dictionary<Molecule.Atom, Quaternion> moleculeAtomRotations = new Dictionary<Molecule.Atom, Quaternion>();
         private List<Molecule.Atom> currentMoleculeAtoms = new List<Molecule.Atom>();
+        private Quaternion moleculeGrabRotation; // Rotation des gegriffenen Atoms beim Grab-Start
 
         private void Awake()
         {
@@ -598,20 +600,28 @@ namespace InsideMatter.Interaction
         private void InitializeMoleculeTracking()
         {
             moleculeAtomOffsets.Clear();
+            moleculeAtomRotations.Clear();
             currentMoleculeAtoms.Clear();
             
             if (atom == null) return;
             
+            // Speichere aktuelle Rotation des gegriffenen Atoms
+            moleculeGrabRotation = transform.rotation;
+            
             // Finde alle transitiv verbundenen Atome (das gesamte Molekül)
             currentMoleculeAtoms = GetAllConnectedAtoms(atom);
             
-            // Speichere relative Positionen zu diesem Atom
+            // Speichere relative Positionen UND Rotationen zu diesem Atom
             foreach (var moleculeAtom in currentMoleculeAtoms)
             {
                 if (moleculeAtom != atom) // Nicht das gegriffene Atom selbst
                 {
                     Vector3 offset = moleculeAtom.transform.position - transform.position;
                     moleculeAtomOffsets[moleculeAtom] = offset;
+                    
+                    // Speichere relative Rotation
+                    Quaternion relativeRotation = Quaternion.Inverse(transform.rotation) * moleculeAtom.transform.rotation;
+                    moleculeAtomRotations[moleculeAtom] = relativeRotation;
                     
                     // Mache das andere Atom kinematisch, damit es sich nicht durch Physik bewegt
                     var otherRb = moleculeAtom.GetComponent<Rigidbody>();
@@ -624,8 +634,8 @@ namespace InsideMatter.Interaction
         }
         
         /// <summary>
-        /// Aktualisiert die Positionen aller verbundenen Atome basierend auf der Bewegung des gegriffenen Atoms.
-        /// Ermöglicht starre Molekülbewegung.
+        /// Aktualisiert die Positionen UND ROTATIONEN aller verbundenen Atome basierend auf der Bewegung des gegriffenen Atoms.
+        /// Ermöglicht starre Molekülbewegung inklusive Rotation.
         /// </summary>
         private void UpdateMoleculePositions()
         {
@@ -648,15 +658,26 @@ namespace InsideMatter.Interaction
             // Wenn zwei Atome gegriffen werden: NICHT synchronisieren (ermöglicht Trennung)
             if (anotherAtomIsGrabbed) return;
             
-            // Bewege alle verbundenen Atome starr mit
+            // Berechne Rotations-Delta seit Grab-Start
+            Quaternion rotationDelta = transform.rotation * Quaternion.Inverse(moleculeGrabRotation);
+            
+            // Bewege UND rotiere alle verbundenen Atome starr mit
             foreach (var kvp in moleculeAtomOffsets)
             {
                 var moleculeAtom = kvp.Key;
-                var offset = kvp.Value;
+                var originalOffset = kvp.Value;
                 
                 if (moleculeAtom != null && moleculeAtom.transform != null)
                 {
-                    moleculeAtom.transform.position = transform.position + offset;
+                    // Rotiere den Offset-Vektor mit dem Rotations-Delta
+                    Vector3 rotatedOffset = rotationDelta * originalOffset;
+                    moleculeAtom.transform.position = transform.position + rotatedOffset;
+                    
+                    // Setze auch die Rotation des verbundenen Atoms
+                    if (moleculeAtomRotations.TryGetValue(moleculeAtom, out Quaternion relativeRotation))
+                    {
+                        moleculeAtom.transform.rotation = transform.rotation * relativeRotation;
+                    }
                 }
             }
         }
