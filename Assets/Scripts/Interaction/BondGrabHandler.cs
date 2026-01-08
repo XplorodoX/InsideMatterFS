@@ -10,8 +10,8 @@ namespace InsideMatter.Interaction
     /// <summary>
     /// Ermöglicht das Greifen einer Bindungslinie in VR.
     /// Beim Greifen wird das gesamte Molekül starr mitbewegt.
+    /// HINWEIS: XRGrabInteractable wird vom MoleculeManager hinzugefügt.
     /// </summary>
-    [RequireComponent(typeof(XRGrabInteractable))]
     public class BondGrabHandler : MonoBehaviour
     {
         private XRGrabInteractable grabInteractable;
@@ -32,16 +32,23 @@ namespace InsideMatter.Interaction
         
         private void Awake()
         {
+            // XRGrabInteractable holen (wird vom MoleculeManager hinzugefügt)
             grabInteractable = GetComponent<XRGrabInteractable>();
             
-            // XR Grab Interactable konfigurieren
-            grabInteractable.movementType = XRBaseInteractable.MovementType.Instantaneous;
-            grabInteractable.throwOnDetach = false;
-            grabInteractable.attachEaseInTime = 0.1f;
+            if (grabInteractable == null)
+            {
+                // Fallback: selbst erstellen falls nicht vorhanden
+                grabInteractable = gameObject.AddComponent<XRGrabInteractable>();
+                grabInteractable.movementType = XRBaseInteractable.MovementType.Instantaneous;
+                grabInteractable.throwOnDetach = false;
+                grabInteractable.attachEaseInTime = 0.1f;
+            }
             
             // Events registrieren
             grabInteractable.selectEntered.AddListener(OnGrabbed);
             grabInteractable.selectExited.AddListener(OnReleased);
+            
+            Debug.Log($"BondGrabHandler initialized on {gameObject.name}");
         }
         
         /// <summary>

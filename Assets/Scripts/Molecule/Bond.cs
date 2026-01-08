@@ -134,19 +134,21 @@ namespace InsideMatter.Molecule
         {
             if (Visual == null) return;
             
-            // CapsuleCollider sicherstellen
+            // CapsuleCollider sicherstellen - WICHTIG für VR-Greifen!
             var col = Visual.GetComponent<CapsuleCollider>();
             if (col == null) col = Visual.AddComponent<CapsuleCollider>();
             
             col.direction = 1; // Y-Axis
-            col.height = length;
+            col.height = length + 0.1f; // Etwas länger als das Visual für besseres Greifen
+            col.center = Vector3.zero;
+            col.isTrigger = false; // WICHTIG: Kein Trigger, sonst funktioniert XRGrabInteractable nicht!
             
-            // Radius anpassen je nach Typ (damit man auch Doppelbindungen gut trifft)
-            float radius = thickness;
-            if (Type == BondType.Double) radius = thickness * 2f;
-            if (Type == BondType.Triple) radius = thickness * 2.5f;
+            // Radius groß genug für VR-Controller (mindestens 0.08f für gutes Greifen)
+            float radius = thickness * 2f;
+            if (Type == BondType.Double) radius = thickness * 3f;
+            if (Type == BondType.Triple) radius = thickness * 3.5f;
             
-            col.radius = Mathf.Max(radius, 0.15f); // Mindestgröße für einfache Interaktion
+            col.radius = Mathf.Max(radius, 0.08f); // Größerer Mindest-Radius für VR
         }
     }
     

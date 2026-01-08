@@ -120,7 +120,11 @@ namespace InsideMatter.Interaction
             // Configure XR Grab Interactable
             grabInteractable.movementType = XRBaseInteractable.MovementType.Instantaneous;
             grabInteractable.throwOnDetach = false; // Disable throwing - atoms stay in place
-            grabInteractable.attachEaseInTime = 0.15f;
+            grabInteractable.attachEaseInTime = 0.0f; // Kein Easing - sofort greifen
+            
+            // KRITISCH: Rotation-Tracking DEAKTIVIEREN!
+            // Sonst richtet sich das Atom an der Controller-Rotation aus!
+            grabInteractable.trackRotation = false;
             
             // Subscribe to events
             grabInteractable.selectEntered.AddListener(OnGrabbed);
