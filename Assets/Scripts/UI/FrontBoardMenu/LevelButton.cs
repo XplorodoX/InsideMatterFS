@@ -27,5 +27,7 @@ public class LevelButton : MonoBehaviour
         string levelNmbr = buttonText.Replace("Level ", "");
         int level = int.Parse(levelNmbr);
         Debug.Log("Level Nummer: " + levelNmbr + " wurde gedrückt. Integer Wert: " + level);
+        MenuManager.Instance.ShowLevelView();
+        LevelManager.Instance.LoadLevel(level);
     }
 }

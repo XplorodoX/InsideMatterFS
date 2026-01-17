@@ -265,7 +265,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -630.6234, y: -284.649}
+  m_AnchoredPosition: {x: -735.60065, y: -260.65332}
   m_SizeDelta: {x: 0.9, y: 0.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &20863321
@@ -3008,7 +3008,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -640.3815, y: -284.66827}
+  m_AnchoredPosition: {x: -745.40173, y: -260.632}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &340993575
@@ -3430,7 +3430,7 @@ Transform:
   m_GameObject: {fileID: 398862442}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.3, y: 0, z: 0}
+  m_LocalPosition: {x: 0.24, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.01, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4376,7 +4376,7 @@ Transform:
   m_GameObject: {fileID: 524618204}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.5, y: 0, z: 0}
+  m_LocalPosition: {x: -1.2, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.01, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4651,9 +4651,9 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 552729815}
-  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: -394.07504}
-  m_LocalScale: {x: 0.6249998, y: 0.625, z: 0.6249998}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 20863320}
@@ -4661,9 +4661,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -1.0000383, y: 178.5}
-  m_SizeDelta: {x: 1271, y: 574}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
 --- !u!114 &552729817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4703,7 +4703,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &552729819
 Canvas:
   m_ObjectHideFlags: 0
@@ -4713,8 +4713,8 @@ Canvas:
   m_GameObject: {fileID: 552729815}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 2
-  m_Camera: {fileID: 796029425}
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -4756,7 +4756,7 @@ Transform:
   m_GameObject: {fileID: 562403200}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.6, y: 0, z: 0}
+  m_LocalPosition: {x: -0.48, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.01, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5378,7 +5378,7 @@ Transform:
   m_GameObject: {fileID: 621938346}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.2, y: 0, z: 0}
+  m_LocalPosition: {x: 0.96, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.01, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5772,9 +5772,9 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 663368219}
-  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 400.29315}
-  m_LocalScale: {x: 0.6249998, y: 0.625, z: 0.6249998}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 340993574}
@@ -5782,9 +5782,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.26253816, y: 178.5}
-  m_SizeDelta: {x: 1271, y: 574}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
 --- !u!114 &663368221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5824,7 +5824,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &663368223
 Canvas:
   m_ObjectHideFlags: 0
@@ -5834,8 +5834,8 @@ Canvas:
   m_GameObject: {fileID: 663368219}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 2
-  m_Camera: {fileID: 796029425}
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -7335,7 +7335,7 @@ Transform:
   m_GameObject: {fileID: 786612438}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.3, y: 0, z: 0}
+  m_LocalPosition: {x: -0.24, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.01, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7916,7 +7916,7 @@ Transform:
   m_GameObject: {fileID: 960059741}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.6, y: 0, z: 0}
+  m_LocalPosition: {x: 0.48, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.01, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8110,9 +8110,9 @@ MonoBehaviour:
   m_SelectEntered:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1835710477}
-        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
-        m_MethodName: ShowHint
+      - m_Target: {fileID: 126395214}
+        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
+        m_MethodName: ShowMainMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8140,9 +8140,9 @@ MonoBehaviour:
   m_Activated:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1835710477}
-        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
-        m_MethodName: ShowHint
+      - m_Target: {fileID: 126395214}
+        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
+        m_MethodName: ShowMainMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8223,9 +8223,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1835710477}
-        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
-        m_MethodName: ShowHint
+      - m_Target: {fileID: 126395214}
+        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
+        m_MethodName: ShowMainMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8505,7 +8505,7 @@ Transform:
   m_GameObject: {fileID: 1068398429}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.9, y: 0, z: 0}
+  m_LocalPosition: {x: 0.72, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.01, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9722,7 +9722,7 @@ Transform:
   m_GameObject: {fileID: 1275001035}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.2, y: 0, z: 0}
+  m_LocalPosition: {x: -0.96, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.01, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10380,7 +10380,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Erstelle ein Wasserstoff-molek\xFCl \n(H<sub>2</sub>)"
+  m_text: "Baue ein Wasserstoff-molek\xFCl \n(H<sub>2</sub>)"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -11341,14 +11341,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 341b7bec670e09645a18c56d45adf9bf, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2dea5b2d78770684794e26badb1aa3ee, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -12411,7 +12411,7 @@ Transform:
   m_GameObject: {fileID: 1834817650}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.9, y: 0, z: 0}
+  m_LocalPosition: {x: -0.72, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.01, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12569,70 +12569,8 @@ MonoBehaviour:
   showHintButton: {fileID: 966397403}
   hintImage: {fileID: 1680236524}
   levels:
-  - description: "Erstelle ein Wasserstoff-molek\xFCl\n(H<sub>2</sub>)"
-    hintSprite: {fileID: 21300000, guid: 341b7bec670e09645a18c56d45adf9bf, type: 3}
-  - description: "Erstelle ein Sauerstoff-molek\xFCl\n(O<sub>2</sub>)"
-    hintSprite: {fileID: 21300000, guid: 7c70894b33cc54948be9b892cc292f54, type: 3}
-  - description: "Erstelle ein Stickstoff-molek\xFCl\n(N<sub>2</sub>)"
-    hintSprite: {fileID: 21300000, guid: 2a15f14ce0d9c6c41a4c680313700e1d, type: 3}
-  - description: "Erstelle ein Salzs\xE4ure-molek\xFCl\n(HCl)"
-    hintSprite: {fileID: 21300000, guid: 712b37739627bd3419db8117463e6077, type: 3}
-  - description: "Erstelle ein Fluor-wasserstoff-molek\xFCl\n(HF)"
-    hintSprite: {fileID: 21300000, guid: bb0bda156c5689d4d920af9df48a84f0, type: 3}
-  - description: "Erstelle ein Natriumchlorid-molek\xFCl\n(NaCl)"
-    hintSprite: {fileID: 21300000, guid: 9aa93f74bc7b0c3418aaf1fd6d4c8d90, type: 3}
-  - description: "Erstelle ein Calciumoxid-molek\xFCl\n(CaO)"
-    hintSprite: {fileID: 21300000, guid: cfe562f288ba64747bf57b554031645a, type: 3}
-  - description: "Erstelle ein Wasser-molek\xFCl\n(H<sub>2</sub>O)"
-    hintSprite: {fileID: 21300000, guid: 46ade2a80d3abed48b7d2b631f00a480, type: 3}
-  - description: "Erstelle ein Kohlenstoff-dioxid-molek\xFCl\n(CO<sub>2</sub>)"
-    hintSprite: {fileID: 21300000, guid: a58a79b4e614b714aae35f12b7f7c94e, type: 3}
-  - description: "Erstelle ein Ammoniak-molek\xFCl\n(NH<sub>3</sub>)"
-    hintSprite: {fileID: 21300000, guid: 97cd9ecca20c36044bb9cbe491b95286, type: 3}
-  - description: "Erstelle ein Schwefel-wasserstoff-molek\xFCl\n(H<sub>2</sub>S)"
-    hintSprite: {fileID: 21300000, guid: d07da45dd92fb5c43aaaa9f4b4fb0247, type: 3}
-  - description: "Erstelle ein Natrium-hydroxid-molek\xFCl\n(NaOH)"
-    hintSprite: {fileID: 21300000, guid: 61d088028e172f34dbccdfebaf086373, type: 3}
-  - description: "Erstelle ein Methan-molek\xFCl\n(CH<sub>4</sub>)"
-    hintSprite: {fileID: 21300000, guid: f261a756c2c39db4b8d5989622a24123, type: 3}
-  - description: "Erstelle ein Ethan-molek\xFCl\n(C<sub>2</sub>H<sub>6</sub>)"
-    hintSprite: {fileID: 21300000, guid: ec05243f399378e4689682819e959a1f, type: 3}
-  - description: "Erstelle ein Propan-molek\xFCl\n(C<sub>3</sub>H<sub>8</sub>)"
-    hintSprite: {fileID: 21300000, guid: 642d2efc644b8c5448b4793548f1ca11, type: 3}
-  - description: "Erstelle ein Butan-molek\xFCl\n(C<sub>4</sub>H<sub>10</sub>)"
-    hintSprite: {fileID: 21300000, guid: a52a0e5e24c1aa34ab6d4c874da0bd85, type: 3}
-  - description: "Erstelle ein Ethen-molek\xFCl\n(C<sub>2</sub>H<sub>4</sub>)"
-    hintSprite: {fileID: 21300000, guid: a73024a4209235541a47c4fad603cf9d, type: 3}
-  - description: "Erstelle ein Ethin-molek\xFCl\n(C<sub>2</sub>H<sub>2</sub>)"
-    hintSprite: {fileID: 21300000, guid: fb272c4af2283de479f6aadd87c7af54, type: 3}
-  - description: "Erstelle ein Methanol-molek\xFCl\n(CH<sub>3</sub>OH)"
-    hintSprite: {fileID: 21300000, guid: f261a756c2c39db4b8d5989622a24123, type: 3}
-  - description: "Erstelle ein Ethanol-molek\xFCl\n(C<sub>2</sub>H<sub>5</sub>OH)"
-    hintSprite: {fileID: 21300000, guid: 7aced4d2d1975bc489b7aa967e4c04f2, type: 3}
-  - description: "Erstelle ein Glykol-molek\xFCl\n(C<sub>2</sub>H<sub>6</sub>O<sub>2</sub>)"
-    hintSprite: {fileID: 21300000, guid: 44a264b893f4aaf4aa38de001b750be6, type: 3}
-  - description: "Erstelle ein Glycerin-molek\xFCl\n(C<sub>3</sub>H<sub>8</sub>O<sub>3</sub>)"
-    hintSprite: {fileID: 21300000, guid: 9223e95652b9e8a4f8e38efa31b9b3a4, type: 3}
-  - description: "Erstelle ein Wasserstoff-peroxid-molek\xFCl\n(H<sub>2</sub>O<sub>2</sub>)"
-    hintSprite: {fileID: 21300000, guid: 008c9104ca54cdd4480e23651c796a07, type: 3}
-  - description: "Erstelle ein Calcium-hydroxid-molek\xFCl\n(Ca(OH)<sub>2</sub>)"
-    hintSprite: {fileID: 21300000, guid: c91ea54e2f3f11340a5a1df8ed46c5bd, type: 3}
-  - description: "Erstelle ein Salpetrige S\xE4ure-molek\xFCl\n(HNO<sub>2</sub>)"
-    hintSprite: {fileID: 21300000, guid: 9810820968220c340bf8c6097cbfab98, type: 3}
-  - description: "Erstelle ein Eisen(III)-oxid-molek\xFCl\n(Fe<sub>2</sub>O<sub>3</sub>)"
-    hintSprite: {fileID: 21300000, guid: a9ceb3a595f41924cb8a92469a1e8fd3, type: 3}
-  - description: "Erstelle ein Kohlens\xE4ure-molek\xFCl\n(H<sub>2</sub>CO<sub>3</sub>)"
-    hintSprite: {fileID: 21300000, guid: 380f7343b932c254faa6b89f9f09e98a, type: 3}
-  - description: "Erstelle ein Harnstoff-molek\xFCl\n(CH<sub>4</sub>N<sub>2</sub>O)"
-    hintSprite: {fileID: 21300000, guid: 224fd9520f4e84f4d8e445561df35cc0, type: 3}
-  - description: "Erstelle ein Formaldehyd-molek\xFCl\n(CH<sub>2</sub>O)"
-    hintSprite: {fileID: 21300000, guid: c2d47e3ba2096a3498ca802b4da50c9d, type: 3}
-  - description: "Erstelle ein Aceton-molek\xFCl\n(C<sub>3</sub>H<sub>6</sub>O)"
-    hintSprite: {fileID: 21300000, guid: 29d94d1f192d24b4a8c48685ed228edf, type: 3}
-  - description: "Erstelle ein Ameisens\xE4ure-molek\xFCl\n(HCOOH)"
-    hintSprite: {fileID: 21300000, guid: a20f022edf31ba441b170ea54c6799a3, type: 3}
-  - description: "Erstelle ein Essigs\xE4ure-molek\xFCl\n(CH<sub>3</sub>COOH)"
-    hintSprite: {fileID: 21300000, guid: 6683c423f5d808b4d89fd5e9606e288c, type: 3}
+  - description: 
+    hintSprite: {fileID: 0}
 --- !u!4 &1837167987 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8301421633087577143, guid: f23f38040907342458dfda7537df5a54, type: 3}

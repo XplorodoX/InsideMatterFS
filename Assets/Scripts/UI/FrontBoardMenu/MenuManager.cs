@@ -5,9 +5,27 @@ using UnityEditor;
 
 public class MenuManager : MonoBehaviour
 {
+    public static MenuManager Instance { get; private set; }
+
     [Header("Panels")]
     public GameObject mainMenuPanel;
     public GameObject levelMenuPanel;
+    public GameObject levelView;
+
+    void Awake()
+    {
+        // Singleton Pattern
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Debug.LogWarning("Mehrere LevelManager gefunden! Zerstöre Duplikat.");
+            Destroy(gameObject);
+            return;
+        }
+    }
 
     void Start()
     {
@@ -20,12 +38,21 @@ public class MenuManager : MonoBehaviour
     {
         mainMenuPanel.SetActive(true);
         levelMenuPanel.SetActive(false);
+        levelView.SetActive(false);
     }
 
     public void ShowLevelMenu()
     {
         mainMenuPanel.SetActive(false);
+        levelView.SetActive(false);
         levelMenuPanel.SetActive(true);
+    }
+
+    public void ShowLevelView()
+    {
+        mainMenuPanel.SetActive(false);
+        levelMenuPanel.SetActive(false);
+        levelView.SetActive(true);
     }
 
     public void ExitGame()
