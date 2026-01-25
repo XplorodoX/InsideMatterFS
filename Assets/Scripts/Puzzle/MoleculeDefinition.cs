@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using InsideMatter.Molecule;
 using UnityEngine;
 
 namespace InsideMatter.Puzzle
@@ -97,9 +99,11 @@ namespace InsideMatter.Puzzle
     public class BondRequirement
     {
         [Tooltip("Erstes Atom (Index in der Reihenfolge)")]
+        // Index des Atomtyps innerhalb der Liste
         public int atomIndexA = 0;
         
         [Tooltip("Zweites Atom (Index in der Reihenfolge)")]
+        // Index des Atomtyps innerhalb der Liste
         public int atomIndexB = 1;
         
         [Tooltip("Bindungstyp")]
