@@ -1,6 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using InsideMatter.Molecule;
+using PXR_Audio.Spatializer;
+using Unity.VisualScripting;
+using Unity.VisualScripting.ReorderableList.Element_Adder_Menu;
 using UnityEngine;
 
 namespace InsideMatter.Puzzle
@@ -29,7 +34,7 @@ namespace InsideMatter.Puzzle
         
         [Header("Bindungsstruktur")]
         [Tooltip("Erwartete Bindungen (optional für genaue Validierung)")]
-        public List<BondRequirement> requiredBonds = new List<BondRequirement>();
+        public Dictionary<string, Dictionary<string, BondType>> graphStructure;
         
         [Header("Schwierigkeit")]
         [Tooltip("Schwierigkeitsgrad des Puzzles")]
@@ -77,6 +82,36 @@ namespace InsideMatter.Puzzle
             }
             return result.TrimEnd();
         }
+
+        public List<Atom> tranformDefinition()
+        {
+            Dictionary<string, Atom> lookup = createAtomLookup();
+            foreach (var atom_successor_pair in graphStructure)
+            {
+                var currentSuccessors = atom_successor_pair.Value;
+                foreach (var bond in currentSuccessors)
+                {
+                    lookup[atom_successor_pair.Key].AddConnection(lookup[bond.Key]);
+                }
+            }
+            return lookup.Values.ToList();
+        }
+
+        private Dictionary<string, Atom> createAtomLookup()
+        {
+            Dictionary<string, Atom> baseAtoms = new Dictionary<string, Atom>();
+            foreach (var atomName in graphStructure.Keys)
+            {
+                Atom newAtom = new Atom{element = extractAtomType(atomName)};
+                baseAtoms.Add(atomName, newAtom);
+            }
+            return baseAtoms;
+        } 
+
+        private string extractAtomType(string atomName)
+        {
+            return atomName.Remove(atomName.Length - 2);
+        }
     }
     
     /// <summary>
@@ -98,15 +133,8 @@ namespace InsideMatter.Puzzle
     [System.Serializable]
     public class BondRequirement
     {
-        [Tooltip("Erstes Atom (Index in der Reihenfolge)")]
-        // Index des Atomtyps innerhalb der Liste
-        public int atomIndexA = 0;
-        
-        [Tooltip("Zweites Atom (Index in der Reihenfolge)")]
-        // Index des Atomtyps innerhalb der Liste
-        public int atomIndexB = 1;
-        
-        [Tooltip("Bindungstyp")]
-        public Molecule.BondType bondType = Molecule.BondType.Single;
+        public string baseType;
+
+        public Dictionary<(string, BondType), int> bonds;
     }
 }

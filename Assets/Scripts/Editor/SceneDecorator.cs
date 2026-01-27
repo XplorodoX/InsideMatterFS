@@ -4,6 +4,8 @@ using InsideMatter.Molecule;
 using InsideMatter.UI;
 using InsideMatter.Puzzle;
 using InsideMatter.Effects;
+using System.Collections.Generic;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 
 namespace InsideMatter.Editor
 {
@@ -399,10 +401,11 @@ namespace InsideMatter.Editor
                 };
                 // Bindungsstruktur: H-O-H
                 // Atom-Reihenfolge: [H(0), H(1), O(2)]
-                waterMolecule.requiredBonds = new System.Collections.Generic.List<BondRequirement>
+                waterMolecule.graphStructure = new System.Collections.Generic.Dictionary<string, Dictionary<string, BondType>>
                 {
-                    new BondRequirement { atomIndexA = 0, atomIndexB = 2, bondType = InsideMatter.Molecule.BondType.Single }, // H-O
-                    new BondRequirement { atomIndexA = 1, atomIndexB = 2, bondType = InsideMatter.Molecule.BondType.Single }  // H-O
+                    {"H_0", new Dictionary<string, BondType>{{"O_0", BondType.Single}}},
+                    {"H_1", new Dictionary<string, BondType>{{"O_0", BondType.Single}}},
+                    {"O_0", new Dictionary<string, BondType>{{"H_0", BondType.Single}, {"H_1", BondType.Single}}},
                 };
                 
                 AssetDatabase.CreateAsset(waterMolecule, $"{moleculePath}/Molecule_Water.asset");
@@ -428,12 +431,13 @@ namespace InsideMatter.Editor
                 };
                 // Bindungsstruktur: Tetraeder C-H4
                 // Atom-Reihenfolge: [C(0), H(1), H(2), H(3), H(4)]
-                methaneMolecule.requiredBonds = new System.Collections.Generic.List<BondRequirement>
+                methaneMolecule.graphStructure = new Dictionary<string, Dictionary<string, BondType>>
                 {
-                    new BondRequirement { atomIndexA = 0, atomIndexB = 1, bondType = InsideMatter.Molecule.BondType.Single }, // C-H
-                    new BondRequirement { atomIndexA = 0, atomIndexB = 2, bondType = InsideMatter.Molecule.BondType.Single }, // C-H
-                    new BondRequirement { atomIndexA = 0, atomIndexB = 3, bondType = InsideMatter.Molecule.BondType.Single }, // C-H
-                    new BondRequirement { atomIndexA = 0, atomIndexB = 4, bondType = InsideMatter.Molecule.BondType.Single }  // C-H
+                    {"H_0", new Dictionary<string, BondType>{{"O_0", BondType.Single}}},
+                    {"H_1", new Dictionary<string, BondType>{{"O_0", BondType.Single}}},
+                    {"H_2", new Dictionary<string, BondType>{{"O_0", BondType.Single}}},
+                    {"H_3", new Dictionary<string, BondType>{{"O_0", BondType.Single}}},
+                    {"C_0", new Dictionary<string, BondType>{{"H_0", BondType.Single}, {"H_1", BondType.Single}, {"H_2", BondType.Single}, {"H_3", BondType.Single}}},
                 };
                 
                 AssetDatabase.CreateAsset(methaneMolecule, $"{moleculePath}/Molecule_Methane.asset");
@@ -459,10 +463,11 @@ namespace InsideMatter.Editor
                 };
                 // Bindungsstruktur: O=C=O (2x Doppelbindung!)
                 // Atom-Reihenfolge: [C(0), O(1), O(2)]
-                co2Molecule.requiredBonds = new System.Collections.Generic.List<BondRequirement>
+                co2Molecule.graphStructure = new Dictionary<string, Dictionary<string, BondType>>
                 {
-                    new BondRequirement { atomIndexA = 0, atomIndexB = 1, bondType = InsideMatter.Molecule.BondType.Double }, // C=O
-                    new BondRequirement { atomIndexA = 0, atomIndexB = 2, bondType = InsideMatter.Molecule.BondType.Double }  // C=O
+                    {"O_0", new Dictionary<string, BondType>{{"C_0", BondType.Double}}},
+                    {"O_1", new Dictionary<string, BondType>{{"C_0", BondType.Double}}},
+                    {"C_0", new Dictionary<string, BondType>{{"O_0", BondType.Double}, {"O_1", BondType.Double}}},
                 };
                 
                 AssetDatabase.CreateAsset(co2Molecule, $"{moleculePath}/Molecule_CO2.asset");
@@ -486,9 +491,10 @@ namespace InsideMatter.Editor
                     new AtomRequirement { element = "O", count = 2 }
                 };
                 // Bindungsstruktur: O=O (1x Doppelbindung)
-                o2Molecule.requiredBonds = new System.Collections.Generic.List<BondRequirement>
+                o2Molecule.graphStructure = new Dictionary<string, Dictionary<string, BondType>>
                 {
-                    new BondRequirement { atomIndexA = 0, atomIndexB = 1, bondType = InsideMatter.Molecule.BondType.Double } // O=O
+                    {"O_0", new Dictionary<string, BondType>{{"O_1", BondType.Double}}},
+                    {"O_1", new Dictionary<string, BondType>{{"O_0", BondType.Double}}},
                 };
                 
                 AssetDatabase.CreateAsset(o2Molecule, $"{moleculePath}/Molecule_O2.asset");
@@ -512,9 +518,10 @@ namespace InsideMatter.Editor
                     new AtomRequirement { element = "N", count = 2 }
                 };
                 // Bindungsstruktur: N≡N (1x Dreifachbindung!)
-                n2Molecule.requiredBonds = new System.Collections.Generic.List<BondRequirement>
+                n2Molecule.graphStructure = new Dictionary<string, Dictionary<string, BondType>>
                 {
-                    new BondRequirement { atomIndexA = 0, atomIndexB = 1, bondType = InsideMatter.Molecule.BondType.Triple } // N≡N
+                    {"N_0", new Dictionary<string, BondType>{{"N_1", BondType.Double}}},
+                    {"N_1", new Dictionary<string, BondType>{{"N_0", BondType.Double}}},
                 };
                 
                 AssetDatabase.CreateAsset(n2Molecule, $"{moleculePath}/Molecule_N2.asset");
