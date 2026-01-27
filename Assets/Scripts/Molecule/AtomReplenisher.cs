@@ -22,7 +22,7 @@ namespace InsideMatter.Molecule
 
         [Header("Label Einstellungen")]
         [Tooltip("Zeigt ein 3D-Label mit dem Elementnamen über dem Tray")]
-        public bool showLabel = true;
+        public bool showLabel = false;
         
         [Tooltip("Höhe des Labels über dem Tray")]
         public float labelHeight = 0.25f;
@@ -40,10 +40,12 @@ namespace InsideMatter.Molecule
         void Start()
         {
             // Label erstellen (vor dem Spawn, damit es sofort sichtbar ist)
+            /* 
             if (showLabel)
             {
                 CreateLabel();
             }
+            */
             
             // Direkt am Anfang spawnen (ohne Delay)
             SpawnNow();
