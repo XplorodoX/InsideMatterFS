@@ -33,14 +33,16 @@ namespace InsideMatter.Interaction
         
         [Tooltip("Angular velocity multiplier when throwing atoms")]
         public float throwAngularVelocityScale = 1.0f;
-        
+
         [Header("Visual Feedback")]
-        [Tooltip("Highlight color when hovering (will blend with original atom color)")]
-        public Color hoverColor = new Color(1f, 1f, 0.5f, 0.4f);
-        
-        [Tooltip("Highlight color when selected (will blend with original atom color)")]
-        public Color selectColor = new Color(0.5f, 1f, 0.5f, 0.4f);
-        
+        [Tooltip("How much brighter the atom becomes on hover (0–1)")]
+        [Range(0f, 1f)]
+        public float hoverBrightness = 0.25f;
+
+        [Tooltip("How much brighter the atom becomes when grabbed (0–1)")]
+        [Range(0f, 1f)]
+        public float grabBrightness = 0.45f;
+
         private MaterialPropertyBlock propertyBlock;
         private MeshRenderer meshRenderer;
         private Color originalColor;
@@ -427,18 +429,18 @@ namespace InsideMatter.Interaction
             {
                 rb.isKinematic = true;
             }
-            
+
             // Apply selection highlight (blend with original color for transparency effect)
             if (meshRenderer != null)
             {
                 meshRenderer.GetPropertyBlock(propertyBlock);
-                // Blend selectColor with originalColor based on selectColor's alpha
-                Color blendedColor = Color.Lerp(originalColor, selectColor, selectColor.a);
-                blendedColor.a = 1f; // Keep fully opaque for rendering
-                propertyBlock.SetColor("_BaseColor", blendedColor);
+
+                Color brightenedColor = GetBrightenedColor(originalColor, grabBrightness);
+                propertyBlock.SetColor("_BaseColor", brightenedColor);
+
                 meshRenderer.SetPropertyBlock(propertyBlock);
             }
-            
+
             // Haptic feedback
             SendHapticFeedback(args.interactorObject, grabHapticIntensity, hapticDuration);
             
@@ -559,21 +561,18 @@ namespace InsideMatter.Interaction
         }
 
 
-
         private void OnHoverEnter(HoverEnterEventArgs args)
         {
-            // Apply hover highlight only if not already grabbed (blend with original color)
             if (!isGrabbed && meshRenderer != null)
             {
                 meshRenderer.GetPropertyBlock(propertyBlock);
-                // Blend hoverColor with originalColor based on hoverColor's alpha
-                Color blendedColor = Color.Lerp(originalColor, hoverColor, hoverColor.a);
-                blendedColor.a = 1f; // Keep fully opaque for rendering
-                propertyBlock.SetColor("_BaseColor", blendedColor);
+
+                Color brightenedColor = GetBrightenedColor(originalColor, hoverBrightness);
+                propertyBlock.SetColor("_BaseColor", brightenedColor);
+
                 meshRenderer.SetPropertyBlock(propertyBlock);
             }
-            
-            // Light haptic feedback on hover
+
             SendHapticFeedback(args.interactorObject, grabHapticIntensity * 0.3f, hapticDuration * 0.5f);
         }
 
@@ -783,5 +782,14 @@ namespace InsideMatter.Interaction
                 grabInteractable.hoverExited.RemoveListener(OnHoverExit);
             }
         }
+
+        private Color GetBrightenedColor(Color baseColor, float intensity)
+        {
+            // intensity: 0 = Originalfarbe, 1 = Weiß
+            Color brightened = Color.Lerp(baseColor, Color.white, intensity);
+            brightened.a = 1f; // immer voll sichtbar
+            return brightened;
+        }
+
     }
 }
