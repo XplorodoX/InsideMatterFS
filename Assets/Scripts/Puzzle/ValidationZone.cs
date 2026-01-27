@@ -48,12 +48,25 @@ namespace InsideMatter.Puzzle
         [Tooltip("Statustext über der Zone")]
         public TextMeshPro statusText;
         
+        [Header("Auto-Validierung")]
+        [Tooltip("Automatisch validieren wenn Molekül in Zone")]
+        public bool autoValidate = true;
+        
+        [Tooltip("Verzögerung bevor automatisch validiert wird (Sekunden)")]
+        public float autoValidateDelay = 1.5f;
+        
+        [Tooltip("Cooldown nach einer Validierung (Sekunden)")]
+        public float validationCooldown = 3f;
+        
         // Interne Variablen
         private List<Atom> atomsInZone = new List<Atom>();
         private MeshRenderer zoneRenderer;
         private float pulseTimer = 0f;
         private Color currentBaseColor;
         private bool isValidating = false;
+        private float atomInZoneTimer = 0f;
+        private float lastValidationTime = -10f;
+        private int lastAtomCount = 0;
         
         /// <summary>
         /// Gibt alle Atome in der Zone zurück
@@ -144,12 +157,74 @@ namespace InsideMatter.Puzzle
             if (atomsInZone.Count > 0)
             {
                 currentBaseColor = detectedColor;
-                UpdateStatus($"Molekül erkannt ({atomsInZone.Count} Atome)\nDrücke PRÜFEN!");
+                
+                // Auto-Validierung Logic
+                if (autoValidate)
+                {
+                    // Timer zurücksetzen wenn sich Atomanzahl ändert (neues Atom hinzugefügt)
+                    if (atomsInZone.Count != lastAtomCount)
+                    {
+                        atomInZoneTimer = 0f;
+                        lastAtomCount = atomsInZone.Count;
+                    }
+                    
+                    // Timer erhöhen
+                    atomInZoneTimer += Time.deltaTime;
+                    
+                    // Cooldown prüfen
+                    float timeSinceLastValidation = Time.time - lastValidationTime;
+                    
+                    if (timeSinceLastValidation >= validationCooldown)
+                    {
+                        float remainingTime = autoValidateDelay - atomInZoneTimer;
+                        
+                        if (remainingTime > 0)
+                        {
+                            UpdateStatus($"Molekül erkannt ({atomsInZone.Count} Atome)\nPrüfe in {remainingTime:F1}s...");
+                        }
+                        else
+                        {
+                            // Zeit abgelaufen - validieren!
+                            TriggerAutoValidation();
+                        }
+                    }
+                    else
+                    {
+                        float cooldownRemaining = validationCooldown - timeSinceLastValidation;
+                        UpdateStatus($"Molekül erkannt ({atomsInZone.Count} Atome)\nWarte {cooldownRemaining:F1}s...");
+                    }
+                }
+                else
+                {
+                    UpdateStatus($"Molekül erkannt ({atomsInZone.Count} Atome)\nDrücke PRÜFEN!");
+                }
             }
             else
             {
                 currentBaseColor = emptyColor;
                 UpdateStatus("Platziere dein Molekül hier");
+                atomInZoneTimer = 0f;
+                lastAtomCount = 0;
+            }
+        }
+        
+        /// <summary>
+        /// Löst die automatische Validierung aus
+        /// </summary>
+        private void TriggerAutoValidation()
+        {
+            var gameManager = FindFirstObjectByType<PuzzleGameManager>();
+            if (gameManager != null && gameManager.IsLevelActive)
+            {
+                Debug.Log("[ValidationZone] Auto-Validierung ausgelöst!");
+                atomInZoneTimer = 0f;
+                lastValidationTime = Time.time;
+                gameManager.CheckCurrentMolecule();
+            }
+            else if (gameManager != null && !gameManager.IsLevelActive)
+            {
+                UpdateStatus("Starte zuerst ein Level!");
+                atomInZoneTimer = 0f;
             }
         }
         
