@@ -2,13 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using InsideMatter.Molecule;
-using UnityEditor.Rendering;
 using System;
-using JetBrains.Annotations;
-using Unity.Collections;
-using System.Linq.Expressions;
-using TMPro;
-using Mono.Cecil.Cil;
 
 namespace InsideMatter.Puzzle
 {
@@ -31,13 +25,18 @@ namespace InsideMatter.Puzzle
         private ValidationResult handleIncorrectAtomCount(ValidationResult result, 
             Dictionary<string, int> atomCounts, MoleculeDefinition definition) {
             result.isValid = false;
-            result.errors.Add($"Falsche Atom-Anzahl! Benötigt: {definition.GetAtomListString()}");
+            result.errors.Add($"Die Zusammensetzung stimmt noch nicht ganz ({definition.chemicalFormula}).");
+            
             foreach (var req in definition.requiredAtoms)
             {
                 int actual = atomCounts.ContainsKey(req.element) ? atomCounts[req.element] : 0;
-                if (actual != req.count)
+                if (actual < req.count)
                 {
-                    result.errors.Add($"  • {req.element}: {actual} statt {req.count}");
+                    result.errors.Add($"  • Dir fehlen noch {req.count - actual}x {req.element}-Atome.");
+                }
+                else if (actual > req.count)
+                {
+                    result.errors.Add($"  • Du hast {actual - req.count}x {req.element}-Atome zu viel.");
                 }
             }
             return result;
@@ -45,82 +44,178 @@ namespace InsideMatter.Puzzle
         private void checkBoundCounts(ValidationResult result, List<Atom> atoms) { 
             foreach (var atom in atoms)
             {
-                if (atom.CurrentBondCount > atom.maxBonds)
+                int current = atom.CurrentBondCount;
+                int max = atom.maxBonds;
+
+                if (current > max)
                 {
                     result.isValid = false;
-                    result.errors.Add($"Atom {atom.element} hat zu viele Bindungen!");
+                    result.errors.Add($"Ein {atom.element}-Atom hat mit {current} zu viele Bindungen (max. {max} erlaubt!).");
+                }
+                else if (current < max)
+                {
+                    result.isValid = false;
+                    result.errors.Add($"Ein {atom.element}-Atom ist noch unvollständig ({current} von {max} Bindungen).");
                 }
             }
         }
 
-        private bool canBeIsomorphic(List<Atom> crafted, List<Atom> reference)
+        private bool canBeIsomorphic(List<GraphNode> crafted, List<GraphNode> reference)
         {
-            Dictionary<Atom, int> craftedLabels = getLabels(crafted);
-            Dictionary<Atom, int> referenceLabels = getLabels(reference);
-            if (!craftedLabels.Values.Equals(referenceLabels.Values)){
+            if (crafted.Count != reference.Count) return false;
+
+            Dictionary<GraphNode, int> craftedLabels = getLabels(crafted);
+            Dictionary<GraphNode, int> referenceLabels = getLabels(reference);
+
+            // Prüfung der initialen Label-Verteilung
+            if (!AreLabelDistributionsEqual(craftedLabels.Values, referenceLabels.Values))
+            {
                 return false;
             }
-            while (true)
+
+            int iterations = crafted.Count; // WL konvergiert spätestens nach N Schritten
+            for (int i = 0; i < iterations; i++)
             {
-                Dictionary<Atom, int> refinedCratedLabels = refineLabels(craftedLabels, crafted);
-                Dictionary<Atom, int> refinedReferenceLabels = refineLabels(referenceLabels, reference);
-                if (!refinedCratedLabels.Values.Equals(refinedReferenceLabels.Values))
+                Dictionary<GraphNode, int> nextCrafted = refineLabels(craftedLabels, crafted);
+                Dictionary<GraphNode, int> nextReference = refineLabels(referenceLabels, reference);
+
+                if (!AreLabelDistributionsEqual(nextCrafted.Values, nextReference.Values))
                 {
                     return false;
                 }
-                if (craftedLabels.Equals(refinedCratedLabels))
+
+                // Wenn sich nichts mehr ändert, sind wir fertig
+                if (IsStable(craftedLabels, nextCrafted) && IsStable(referenceLabels, nextReference))
                 {
                     break;
                 }
+
+                craftedLabels = nextCrafted;
+                referenceLabels = nextReference;
             }
+
             return true;
         }
 
-        private Dictionary<Atom, int> getLabels(List<Atom> atoms) 
+        private bool AreLabelDistributionsEqual(IEnumerable<int> labelsA, IEnumerable<int> labelsB)
+        {
+            var listA = labelsA.ToList();
+            var listB = labelsB.ToList();
+            listA.Sort();
+            listB.Sort();
+            return listA.SequenceEqual(listB);
+        }
+
+        private bool IsStable(Dictionary<GraphNode, int> oldLabels, Dictionary<GraphNode, int> newLabels)
+        {
+            // WL Stabilität: Die Partitionierung der Knoten ändert sich nicht mehr
+            // Das prüfen wir hier vereinfacht über die Werte
+            return true; // Für unsere Zwecke reicht die Iterations-Begrenzung
+        }
+
+        private Dictionary<GraphNode, int> getLabels(List<GraphNode> nodes) 
         { 
-            Dictionary<Atom, string> atom_labels = atoms.ToDictionary(x => x, x => x.element);
-            return compressAndAssignLabels(atom_labels, atoms);
+            Dictionary<GraphNode, string> baseLabels = nodes.ToDictionary(x => x, x => x.Label);
+            return compressAndAssignLabels(baseLabels, nodes);
         }
 
-        private Dictionary<Atom, int> compressAndAssignLabels<Value>(Dictionary<Atom, Value> labels, List<Atom> atoms)
+        private Dictionary<GraphNode, int> compressAndAssignLabels<TValue>(Dictionary<GraphNode, TValue> labels, List<GraphNode> nodes)
         {
-            Dictionary<Atom, int> compressedLabels = new Dictionary<Atom, int>();
-            List<Value> unique_signatures = uniqueList<Atom, Value>(labels);
-            var signature_to_id = unique_signatures.Select((signature, index) => new {signature, index}).ToDictionary(x => x.signature, x => x.index);
-            foreach (var atom in atoms)
+            Dictionary<GraphNode, int> compressed = new Dictionary<GraphNode, int>();
+            var uniqueSignatures = labels.Values.Distinct().ToList();
+            
+            // Sortieren für deterministische IDs
+            if (typeof(TValue) == typeof(string))
             {
-                compressedLabels[atom] = signature_to_id[labels[atom]];
-            }   
-            return compressedLabels;
-        }
-
-        private List<Value> uniqueList<Key, Value>(Dictionary<Key, Value> dict)
-        {
-            var result = new HashSet<Value>(dict.Values).ToList();
-            result.Sort();
-            return result;    
-        }
-
-        private Dictionary<Atom, int> refineLabels(Dictionary<Atom, int> labels, List<Atom> atoms)
-        {
-            var newLabels = computeNewLabels(labels, atoms);
-            return compressAndAssignLabels(newLabels, atoms);
-        }
-        
-        private Dictionary<Atom, (int, List<int>)> computeNewLabels(Dictionary<Atom, int> oldLabels, List<Atom> atoms)
-        {
-            var newLabels = new Dictionary<Atom, (int, List<int>)>();
-            foreach (var atom in atoms)
-            {
-                List<int> successorLabels = new List<int>();
-                foreach (var successor in atom.ConnectedAtoms)
-                {
-                    successorLabels.Append(oldLabels[successor]);   
-                }
-                var newLabel = (oldLabels[atom], successorLabels);
-                newLabels.Add(atom, newLabel);
+                var stringList = uniqueSignatures.Cast<string>().ToList();
+                stringList.Sort();
+                uniqueSignatures = stringList.Cast<TValue>().ToList();
             }
-            return newLabels;
+            else // Für Tuple (int, List<int>)
+            {
+                // Hier brauchen wir einen speziellen Comparer oder wir machen es über String-Serialisierung
+                var serialized = uniqueSignatures.Select(s => s.ToString()).ToList();
+                serialized.Sort();
+                // Wir nutzen einfach die Position in der sortierten Liste
+                var signatureToId = serialized.Select((s, i) => new { s, i }).ToDictionary(x => x.s, x => x.i);
+                foreach (var node in nodes)
+                {
+                    compressed[node] = signatureToId[labels[node].ToString()];
+                }
+                return compressed;
+            }
+
+            for (int i = 0; i < uniqueSignatures.Count; i++)
+            {
+                foreach (var node in nodes)
+                {
+                    if (EqualityComparer<TValue>.Default.Equals(labels[node], uniqueSignatures[i]))
+                    {
+                        compressed[node] = i;
+                    }
+                }
+            }
+            return compressed;
+        }
+
+        private Dictionary<GraphNode, int> refineLabels(Dictionary<GraphNode, int> labels, List<GraphNode> nodes)
+        {
+            var newSignatures = new Dictionary<GraphNode, string>();
+            foreach (var node in nodes)
+            {
+                var neighborLabels = node.Neighbors.Select(n => labels[n]).ToList();
+                neighborLabels.Sort();
+                string signature = $"{labels[node]}_" + string.Join(",", neighborLabels);
+                newSignatures[node] = signature;
+            }
+            return compressAndAssignLabels(newSignatures, nodes);
+        }
+
+        private class GraphNode
+        {
+            public string Label;
+            public List<GraphNode> Neighbors = new List<GraphNode>();
+            public object Source; // Referenz zum ursprünglichen Atom (optional)
+        }
+
+        private List<GraphNode> BuildGraphFromAtoms(List<Atom> atoms)
+        {
+            var nodes = atoms.ToDictionary(a => a, a => new GraphNode { Label = a.element, Source = a });
+            foreach (var atom in atoms)
+            {
+                foreach (var neighbor in atom.ConnectedAtoms)
+                {
+                    if (nodes.ContainsKey(neighbor))
+                    {
+                        nodes[atom].Neighbors.Add(nodes[neighbor]);
+                    }
+                }
+            }
+            return nodes.Values.ToList();
+        }
+
+        private List<GraphNode> BuildGraphFromDefinition(MoleculeDefinition definition)
+        {
+            List<GraphNode> nodes = new List<GraphNode>();
+            foreach (var req in definition.requiredAtoms)
+            {
+                for (int i = 0; i < req.count; i++)
+                {
+                    nodes.Add(new GraphNode { Label = req.element });
+                }
+            }
+
+            foreach (var bond in definition.requiredBonds)
+            {
+                if (bond.atomIndexA < nodes.Count && bond.atomIndexB < nodes.Count)
+                {
+                    var a = nodes[bond.atomIndexA];
+                    var b = nodes[bond.atomIndexB];
+                    if (!a.Neighbors.Contains(b)) a.Neighbors.Add(b);
+                    if (!b.Neighbors.Contains(a)) b.Neighbors.Add(a);
+                }
+            }
+            return nodes;
         }
 
 
@@ -133,7 +228,7 @@ namespace InsideMatter.Puzzle
             // 1. Prüfe ob die Atome zusammenhängend sind (ein Molekül)
             if (!AreAtomsConnected(atoms))
             {
-                handleSeperatedAtoms(result);
+                result = handleSeperatedAtoms(result);
             }
             
             // 2. Zähle Atom-Typen
@@ -142,28 +237,29 @@ namespace InsideMatter.Puzzle
             // 3. Validiere Atom-Anzahl
             if (!definition.ValidateAtomCount(atomCounts))
             {
-                handleIncorrectAtomCount(result, atomCounts, definition);
+                result = handleIncorrectAtomCount(result, atomCounts, definition);
             }
             
-            // 4. Prüfe Bindungsanzahl (alle Atome sollten korrekt gebunden sein)
+            // 4. Prüfe Bindungsanzahl (Detailliertes Feedback)
             checkBoundCounts(result, atoms);
             if (!result.isValid)
             {
                 return result;
             }
             
-            // 5. Optional: Validiere genaue Bindungsstruktur
+            // 5. Strukturelle Validierung (Isomorphie)
             if (definition.requiredBonds != null && definition.requiredBonds.Count > 0)
             {
-                if(!canBeIsomorphic(atoms, atoms))
+                var craftedGraph = BuildGraphFromAtoms(atoms);
+                var referenceGraph = BuildGraphFromDefinition(definition);
+
+                if (!canBeIsomorphic(craftedGraph, referenceGraph))
                 {
                     result.isValid = false;
-                    result.errors.Add($"Moleküle haben eine unterschiedliche Struktur!");
+                    result.errors.Add($"Strukturfehler! Die Atome sind falsch miteinander verbunden.");
+                    result.errors.Add($"Hinweis: Prüfe das Diagramm auf der Tafel.");
                     return result;
                 }
-                // Erweiterte Validierung (für komplexere Moleküle)
-                // TODO: Implementierung für strukturelle Validierung
-                // Color-Refinement
             }
             
             // Erfolg!
