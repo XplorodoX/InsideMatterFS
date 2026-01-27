@@ -24,6 +24,9 @@ namespace InsideMatter.Puzzle
         [Tooltip("Höhe der Zone über dem Tisch")]
         public float zoneHeight = 0.3f;
         
+        [Tooltip("Manueller Versatz der gesamten Zone (X negativ = links)")]
+        public Vector3 zoneOffset = Vector3.zero;
+        
         [Header("Visuelle Effekte")]
         [Tooltip("Material für den leuchtenden Bereich")]
         public Material zoneMaterial;
@@ -59,6 +62,7 @@ namespace InsideMatter.Puzzle
         public float validationCooldown = 3f;
         
         // Interne Variablen
+        private Vector3 autoCenterOffset = Vector3.zero;
         private List<Atom> atomsInZone = new List<Atom>();
         private MeshRenderer zoneRenderer;
         private float pulseTimer = 0f;
@@ -129,7 +133,11 @@ namespace InsideMatter.Puzzle
                 zoneWidth = bounds.size.x * 0.9f;
                 zoneDepth = bounds.size.z * 0.9f;
                 
-                Debug.Log($"[ValidationZone] Größe automatisch erkannt: {zoneWidth:F2} x {zoneDepth:F2}");
+                // Offset zum Pivot berechnen (um Geometrie-Verschiebungen auszugleichen)
+                Vector3 localCenter = transform.InverseTransformPoint(bounds.center);
+                autoCenterOffset = new Vector3(localCenter.x, 0, localCenter.z);
+                
+                Debug.Log($"[ValidationZone] Größe automatisch erkannt: {zoneWidth:F2} x {zoneDepth:F2}, Offset: {autoCenterOffset}");
             }
             else
             {
@@ -233,14 +241,16 @@ namespace InsideMatter.Puzzle
         /// </summary>
         private void CreateZoneVisual()
         {
+            Vector3 totalOffset = autoCenterOffset + zoneOffset;
+
             // === RECHTECKIGER RAND erstellen ===
-            CreateRectangularBorder();
+            CreateRectangularBorder(totalOffset);
             
             // === Boden-Platte (sehr transparent) ===
             GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
             floor.name = "ZoneFloor";
             floor.transform.SetParent(transform);
-            floor.transform.localPosition = new Vector3(0, 0.005f, 0);
+            floor.transform.localPosition = totalOffset + new Vector3(0, 0.005f, 0);
             floor.transform.localScale = new Vector3(zoneWidth, 0.01f, zoneDepth);
             
             Collider floorCollider = floor.GetComponent<Collider>();
@@ -255,14 +265,14 @@ namespace InsideMatter.Puzzle
             BoxCollider trigger = gameObject.AddComponent<BoxCollider>();
             trigger.isTrigger = true;
             trigger.size = new Vector3(zoneWidth, zoneHeight, zoneDepth);
-            trigger.center = new Vector3(0, zoneHeight / 2f, 0);
+            trigger.center = totalOffset + new Vector3(0, zoneHeight / 2f, 0);
             
             // === Statustext erstellen ===
             if (statusText == null)
             {
                 GameObject textObj = new GameObject("StatusText");
                 textObj.transform.SetParent(transform);
-                textObj.transform.localPosition = new Vector3(0, zoneHeight + 0.15f, 0);
+                textObj.transform.localPosition = totalOffset + new Vector3(0, zoneHeight + 0.15f, 0);
                 
                 statusText = textObj.AddComponent<TextMeshPro>();
                 statusText.fontSize = 0.5f;
@@ -277,23 +287,23 @@ namespace InsideMatter.Puzzle
         /// <summary>
         /// Erstellt einen rechteckigen Rand um die Zone
         /// </summary>
-        private void CreateRectangularBorder()
+        private void CreateRectangularBorder(Vector3 totalOffset)
         {
             float borderThickness = 0.02f; // Dicke des Rands
             float borderHeight = 0.2f; // Höhe des Rands (erhöht für bessere Sichtbarkeit)
             
             // 4 Seiten des Rechtecks
             // Vorne (Z+)
-            CreateBorderEdge("Front", new Vector3(0, borderHeight / 2f, zoneDepth / 2f), 
+            CreateBorderEdge("Front", totalOffset + new Vector3(0, borderHeight / 2f, zoneDepth / 2f), 
                              new Vector3(zoneWidth, borderHeight, borderThickness));
             // Hinten (Z-)
-            CreateBorderEdge("Back", new Vector3(0, borderHeight / 2f, -zoneDepth / 2f), 
+            CreateBorderEdge("Back", totalOffset + new Vector3(0, borderHeight / 2f, -zoneDepth / 2f), 
                              new Vector3(zoneWidth, borderHeight, borderThickness));
             // Links (X-)
-            CreateBorderEdge("Left", new Vector3(-zoneWidth / 2f, borderHeight / 2f, 0), 
+            CreateBorderEdge("Left", totalOffset + new Vector3(-zoneWidth / 2f, borderHeight / 2f, 0), 
                              new Vector3(borderThickness, borderHeight, zoneDepth));
             // Rechts (X+)
-            CreateBorderEdge("Right", new Vector3(zoneWidth / 2f, borderHeight / 2f, 0), 
+            CreateBorderEdge("Right", totalOffset + new Vector3(zoneWidth / 2f, borderHeight / 2f, 0), 
                              new Vector3(borderThickness, borderHeight, zoneDepth));
         }
         
