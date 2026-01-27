@@ -380,7 +380,9 @@ namespace InsideMatter.Editor
             if (!AssetDatabase.IsValidFolder(moleculePath))
                 AssetDatabase.CreateFolder("Assets/Resources", "Molecules");
             
-            // === MOLEKÜL 1: WASSER ===
+            // === MOLEKÜL 1: WASSER (H₂O) ===
+            // Struktur: H-O-H (gewinkelt, ca. 104.5°)
+            // Atom-Indizes: 0=H, 1=H, 2=O
             MoleculeDefinition waterMolecule = AssetDatabase.LoadAssetAtPath<MoleculeDefinition>($"{moleculePath}/Molecule_Water.asset");
             if (waterMolecule == null)
             {
@@ -395,12 +397,21 @@ namespace InsideMatter.Editor
                     new AtomRequirement { element = "H", count = 2 },
                     new AtomRequirement { element = "O", count = 1 }
                 };
+                // Bindungsstruktur: H-O-H
+                // Atom-Reihenfolge: [H(0), H(1), O(2)]
+                waterMolecule.requiredBonds = new System.Collections.Generic.List<BondRequirement>
+                {
+                    new BondRequirement { atomIndexA = 0, atomIndexB = 2, bondType = InsideMatter.Molecule.BondType.Single }, // H-O
+                    new BondRequirement { atomIndexA = 1, atomIndexB = 2, bondType = InsideMatter.Molecule.BondType.Single }  // H-O
+                };
                 
                 AssetDatabase.CreateAsset(waterMolecule, $"{moleculePath}/Molecule_Water.asset");
-                Debug.Log("[SceneDecorator] ✓ Wasser-Molekül erstellt!");
+                Debug.Log("[SceneDecorator] ✓ Wasser-Molekül erstellt (mit Bindungsstruktur)!");
             }
             
-            // === MOLEKÜL 2: METHAN ===
+            // === MOLEKÜL 2: METHAN (CH₄) ===
+            // Struktur: Tetraeder - C in der Mitte, 4x H drum herum
+            // Atom-Indizes: 0=C, 1=H, 2=H, 3=H, 4=H
             MoleculeDefinition methaneMolecule = AssetDatabase.LoadAssetAtPath<MoleculeDefinition>($"{moleculePath}/Molecule_Methane.asset");
             if (methaneMolecule == null)
             {
@@ -415,9 +426,99 @@ namespace InsideMatter.Editor
                     new AtomRequirement { element = "C", count = 1 },
                     new AtomRequirement { element = "H", count = 4 }
                 };
+                // Bindungsstruktur: Tetraeder C-H4
+                // Atom-Reihenfolge: [C(0), H(1), H(2), H(3), H(4)]
+                methaneMolecule.requiredBonds = new System.Collections.Generic.List<BondRequirement>
+                {
+                    new BondRequirement { atomIndexA = 0, atomIndexB = 1, bondType = InsideMatter.Molecule.BondType.Single }, // C-H
+                    new BondRequirement { atomIndexA = 0, atomIndexB = 2, bondType = InsideMatter.Molecule.BondType.Single }, // C-H
+                    new BondRequirement { atomIndexA = 0, atomIndexB = 3, bondType = InsideMatter.Molecule.BondType.Single }, // C-H
+                    new BondRequirement { atomIndexA = 0, atomIndexB = 4, bondType = InsideMatter.Molecule.BondType.Single }  // C-H
+                };
                 
                 AssetDatabase.CreateAsset(methaneMolecule, $"{moleculePath}/Molecule_Methane.asset");
-                Debug.Log("[SceneDecorator] ✓ Methan-Molekül erstellt!");
+                Debug.Log("[SceneDecorator] ✓ Methan-Molekül erstellt (mit Bindungsstruktur)!");
+            }
+            
+            // === MOLEKÜL 3: KOHLENDIOXID (CO₂) ===
+            // Struktur: O=C=O (linear, zwei Doppelbindungen)
+            // Atom-Indizes: 0=C, 1=O, 2=O
+            MoleculeDefinition co2Molecule = AssetDatabase.LoadAssetAtPath<MoleculeDefinition>($"{moleculePath}/Molecule_CO2.asset");
+            if (co2Molecule == null)
+            {
+                co2Molecule = ScriptableObject.CreateInstance<MoleculeDefinition>();
+                co2Molecule.moleculeName = "Kohlendioxid";
+                co2Molecule.chemicalFormula = "CO₂";
+                co2Molecule.description = "Kohlendioxid besteht aus einem Kohlenstoff-Atom mit zwei Doppelbindungen zu je einem Sauerstoff-Atom. Es ist ein wichtiges Treibhausgas!";
+                co2Molecule.difficulty = 3;
+                co2Molecule.scoreReward = 200;
+                co2Molecule.requiredAtoms = new System.Collections.Generic.List<AtomRequirement>
+                {
+                    new AtomRequirement { element = "C", count = 1 },
+                    new AtomRequirement { element = "O", count = 2 }
+                };
+                // Bindungsstruktur: O=C=O (2x Doppelbindung!)
+                // Atom-Reihenfolge: [C(0), O(1), O(2)]
+                co2Molecule.requiredBonds = new System.Collections.Generic.List<BondRequirement>
+                {
+                    new BondRequirement { atomIndexA = 0, atomIndexB = 1, bondType = InsideMatter.Molecule.BondType.Double }, // C=O
+                    new BondRequirement { atomIndexA = 0, atomIndexB = 2, bondType = InsideMatter.Molecule.BondType.Double }  // C=O
+                };
+                
+                AssetDatabase.CreateAsset(co2Molecule, $"{moleculePath}/Molecule_CO2.asset");
+                Debug.Log("[SceneDecorator] ✓ CO₂-Molekül erstellt (mit Doppelbindungen)!");
+            }
+            
+            // === MOLEKÜL 4: SAUERSTOFF (O₂) ===
+            // Struktur: O=O (eine Doppelbindung)
+            // Atom-Indizes: 0=O, 1=O
+            MoleculeDefinition o2Molecule = AssetDatabase.LoadAssetAtPath<MoleculeDefinition>($"{moleculePath}/Molecule_O2.asset");
+            if (o2Molecule == null)
+            {
+                o2Molecule = ScriptableObject.CreateInstance<MoleculeDefinition>();
+                o2Molecule.moleculeName = "Sauerstoff";
+                o2Molecule.chemicalFormula = "O₂";
+                o2Molecule.description = "Sauerstoff-Molekül: Zwei Sauerstoff-Atome sind durch eine Doppelbindung verbunden. Wir atmen es zum Leben!";
+                o2Molecule.difficulty = 2;
+                o2Molecule.scoreReward = 120;
+                o2Molecule.requiredAtoms = new System.Collections.Generic.List<AtomRequirement>
+                {
+                    new AtomRequirement { element = "O", count = 2 }
+                };
+                // Bindungsstruktur: O=O (1x Doppelbindung)
+                o2Molecule.requiredBonds = new System.Collections.Generic.List<BondRequirement>
+                {
+                    new BondRequirement { atomIndexA = 0, atomIndexB = 1, bondType = InsideMatter.Molecule.BondType.Double } // O=O
+                };
+                
+                AssetDatabase.CreateAsset(o2Molecule, $"{moleculePath}/Molecule_O2.asset");
+                Debug.Log("[SceneDecorator] ✓ O₂-Molekül erstellt (mit Doppelbindung)!");
+            }
+            
+            // === MOLEKÜL 5: STICKSTOFF (N₂) ===
+            // Struktur: N≡N (eine Dreifachbindung!)
+            // Atom-Indizes: 0=N, 1=N
+            MoleculeDefinition n2Molecule = AssetDatabase.LoadAssetAtPath<MoleculeDefinition>($"{moleculePath}/Molecule_N2.asset");
+            if (n2Molecule == null)
+            {
+                n2Molecule = ScriptableObject.CreateInstance<MoleculeDefinition>();
+                n2Molecule.moleculeName = "Stickstoff";
+                n2Molecule.chemicalFormula = "N₂";
+                n2Molecule.description = "Stickstoff-Molekül: Zwei Stickstoff-Atome sind durch eine Dreifachbindung verbunden - die stärkste chemische Bindung! Fast 80% der Luft besteht daraus.";
+                n2Molecule.difficulty = 3;
+                n2Molecule.scoreReward = 180;
+                n2Molecule.requiredAtoms = new System.Collections.Generic.List<AtomRequirement>
+                {
+                    new AtomRequirement { element = "N", count = 2 }
+                };
+                // Bindungsstruktur: N≡N (1x Dreifachbindung!)
+                n2Molecule.requiredBonds = new System.Collections.Generic.List<BondRequirement>
+                {
+                    new BondRequirement { atomIndexA = 0, atomIndexB = 1, bondType = InsideMatter.Molecule.BondType.Triple } // N≡N
+                };
+                
+                AssetDatabase.CreateAsset(n2Molecule, $"{moleculePath}/Molecule_N2.asset");
+                Debug.Log("[SceneDecorator] ✓ N₂-Molekül erstellt (mit Dreifachbindung)!");
             }
             
             // === LEVEL 1: WASSER ===
