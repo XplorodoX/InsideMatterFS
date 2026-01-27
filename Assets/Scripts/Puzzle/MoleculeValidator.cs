@@ -44,7 +44,19 @@ namespace InsideMatter.Puzzle
         private void checkBoundCounts(ValidationResult result, List<Atom> atoms) { 
             foreach (var atom in atoms)
             {
-                int current = atom.CurrentBondCount;
+                // WICHTIG: Verwende die korrekte Valenz-Berechnung die Bindungsordnung berücksichtigt
+                // Doppelbindung = 2 Valenzelektronen, Dreifachbindung = 3
+                int current = 0;
+                if (MoleculeManager.Instance != null)
+                {
+                    current = MoleculeManager.Instance.CalculateCurrentValence(atom);
+                }
+                else
+                {
+                    // Fallback: Zähle nur belegte BondPoints (weniger genau)
+                    current = atom.CurrentBondCount;
+                }
+                
                 int max = atom.maxBonds;
 
                 if (current > max)
@@ -94,6 +106,122 @@ namespace InsideMatter.Puzzle
                 referenceLabels = nextReference;
             }
 
+            // NEU: Zusätzlicher Backtracking-Check für robustere Validierung
+            // WL kann bei bestimmten regulären Graphen falsche Positive liefern
+            return TryFindIsomorphism(crafted, reference, craftedLabels, referenceLabels);
+        }
+        
+        /// <summary>
+        /// Versucht eine konkrete Isomorphie-Zuordnung zu finden (Backtracking/VF2-Style)
+        /// </summary>
+        private bool TryFindIsomorphism(List<GraphNode> crafted, List<GraphNode> reference,
+            Dictionary<GraphNode, int> craftedLabels, Dictionary<GraphNode, int> referenceLabels)
+        {
+            // Gruppiere Knoten nach ihren finalen WL-Labels
+            var craftedByLabel = crafted.GroupBy(n => craftedLabels[n]).ToDictionary(g => g.Key, g => g.ToList());
+            var referenceByLabel = reference.GroupBy(n => referenceLabels[n]).ToDictionary(g => g.Key, g => g.ToList());
+            
+            // Für kleine Moleküle (< 20 Atome) versuche Backtracking
+            if (crafted.Count <= 20)
+            {
+                var mapping = new Dictionary<GraphNode, GraphNode>();
+                return BacktrackIsomorphism(crafted, reference, mapping, 0, craftedLabels, referenceLabels);
+            }
+            
+            // Für größere Moleküle vertrauen wir dem WL-Ergebnis
+            return true;
+        }
+        
+        /// <summary>
+        /// Rekursives Backtracking um eine gültige Isomorphie-Zuordnung zu finden
+        /// </summary>
+        private bool BacktrackIsomorphism(List<GraphNode> crafted, List<GraphNode> reference,
+            Dictionary<GraphNode, GraphNode> mapping, int index,
+            Dictionary<GraphNode, int> craftedLabels, Dictionary<GraphNode, int> referenceLabels)
+        {
+            if (index == crafted.Count)
+            {
+                // Alle Knoten zugeordnet - prüfe ob alle Kanten übereinstimmen
+                return ValidateMapping(crafted, mapping);
+            }
+            
+            var craftedNode = crafted[index];
+            int label = craftedLabels[craftedNode];
+            
+            // Nur Kandidaten mit gleichem Label probieren
+            foreach (var refNode in reference)
+            {
+                if (mapping.ContainsValue(refNode)) continue; // Schon zugeordnet
+                if (referenceLabels[refNode] != label) continue; // Falsches Label
+                
+                // Prüfe ob diese Zuordnung mit bestehenden Nachbar-Zuordnungen konsistent ist
+                if (!IsConsistent(craftedNode, refNode, mapping))
+                    continue;
+                
+                mapping[craftedNode] = refNode;
+                
+                if (BacktrackIsomorphism(crafted, reference, mapping, index + 1, craftedLabels, referenceLabels))
+                    return true;
+                
+                mapping.Remove(craftedNode);
+            }
+            
+            return false;
+        }
+        
+        /// <summary>
+        /// Prüft ob eine Zuordnung mit bestehenden Nachbar-Zuordnungen konsistent ist
+        /// </summary>
+        private bool IsConsistent(GraphNode craftedNode, GraphNode refNode, Dictionary<GraphNode, GraphNode> mapping)
+        {
+            for (int i = 0; i < craftedNode.Neighbors.Count; i++)
+            {
+                var craftedNeighbor = craftedNode.Neighbors[i];
+                if (!mapping.ContainsKey(craftedNeighbor)) continue;
+                
+                var expectedRefNeighbor = mapping[craftedNeighbor];
+                
+                // Prüfe ob refNode auch mit expectedRefNeighbor verbunden ist
+                int refNeighborIndex = refNode.Neighbors.IndexOf(expectedRefNeighbor);
+                if (refNeighborIndex < 0) return false;
+                
+                // Prüfe ob Bindungstyp übereinstimmt
+                var craftedBondType = i < craftedNode.EdgeLabels.Count ? craftedNode.EdgeLabels[i] : BondType.Single;
+                var refBondType = refNeighborIndex < refNode.EdgeLabels.Count ? refNode.EdgeLabels[refNeighborIndex] : BondType.Single;
+                
+                if (craftedBondType != refBondType) return false;
+            }
+            return true;
+        }
+        
+        /// <summary>
+        /// Validiert ob alle Kanten im Mapping korrekt sind
+        /// </summary>
+        private bool ValidateMapping(List<GraphNode> crafted, Dictionary<GraphNode, GraphNode> mapping)
+        {
+            foreach (var craftedNode in crafted)
+            {
+                var refNode = mapping[craftedNode];
+                
+                // Anzahl Nachbarn muss stimmen
+                if (craftedNode.Neighbors.Count != refNode.Neighbors.Count)
+                    return false;
+                
+                // Alle Nachbarn und Bindungstypen müssen übereinstimmen
+                for (int i = 0; i < craftedNode.Neighbors.Count; i++)
+                {
+                    var craftedNeighbor = craftedNode.Neighbors[i];
+                    var expectedRefNeighbor = mapping[craftedNeighbor];
+                    
+                    int refNeighborIndex = refNode.Neighbors.IndexOf(expectedRefNeighbor);
+                    if (refNeighborIndex < 0) return false;
+                    
+                    var craftedBondType = i < craftedNode.EdgeLabels.Count ? craftedNode.EdgeLabels[i] : BondType.Single;
+                    var refBondType = refNeighborIndex < refNode.EdgeLabels.Count ? refNode.EdgeLabels[refNeighborIndex] : BondType.Single;
+                    
+                    if (craftedBondType != refBondType) return false;
+                }
+            }
             return true;
         }
 
@@ -163,9 +291,16 @@ namespace InsideMatter.Puzzle
             var newSignatures = new Dictionary<GraphNode, string>();
             foreach (var node in nodes)
             {
-                var neighborLabels = node.Neighbors.Select(n => labels[n]).ToList();
-                neighborLabels.Sort();
-                string signature = $"{labels[node]}_" + string.Join(",", neighborLabels);
+                // Kombiniere Nachbar-Label MIT Bindungstyp für korrekte Isomorphie
+                var neighborData = new List<string>();
+                for (int i = 0; i < node.Neighbors.Count; i++)
+                {
+                    var neighbor = node.Neighbors[i];
+                    var edgeType = i < node.EdgeLabels.Count ? (int)node.EdgeLabels[i] : 0;
+                    neighborData.Add($"{labels[neighbor]}:{edgeType}");
+                }
+                neighborData.Sort();
+                string signature = $"{labels[node]}_" + string.Join(",", neighborData);
                 newSignatures[node] = signature;
             }
             return compressAndAssignLabels(newSignatures, nodes);
@@ -175,12 +310,17 @@ namespace InsideMatter.Puzzle
         {
             public string Label;
             public List<GraphNode> Neighbors = new List<GraphNode>();
+            public List<BondType> EdgeLabels = new List<BondType>(); // Bindungstyp zu jedem Nachbarn
             public object Source; // Referenz zum ursprünglichen Atom (optional)
         }
 
         private List<GraphNode> BuildGraphFromAtoms(List<Atom> atoms)
         {
             var nodes = atoms.ToDictionary(a => a, a => new GraphNode { Label = a.element, Source = a });
+            
+            // Hole alle Bindungen aus dem MoleculeManager
+            var allBonds = MoleculeManager.Instance?.Bonds ?? new List<Bond>();
+            
             foreach (var atom in atoms)
             {
                 foreach (var neighbor in atom.ConnectedAtoms)
@@ -188,6 +328,19 @@ namespace InsideMatter.Puzzle
                     if (nodes.ContainsKey(neighbor))
                     {
                         nodes[atom].Neighbors.Add(nodes[neighbor]);
+                        
+                        // Finde den Bindungstyp für diese Verbindung
+                        BondType bondType = BondType.Single;
+                        foreach (var bond in allBonds)
+                        {
+                            if ((bond.AtomA == atom && bond.AtomB == neighbor) ||
+                                (bond.AtomA == neighbor && bond.AtomB == atom))
+                            {
+                                bondType = bond.Type;
+                                break;
+                            }
+                        }
+                        nodes[atom].EdgeLabels.Add(bondType);
                     }
                 }
             }
@@ -211,8 +364,16 @@ namespace InsideMatter.Puzzle
                 {
                     var a = nodes[bond.atomIndexA];
                     var b = nodes[bond.atomIndexB];
-                    if (!a.Neighbors.Contains(b)) a.Neighbors.Add(b);
-                    if (!b.Neighbors.Contains(a)) b.Neighbors.Add(a);
+                    if (!a.Neighbors.Contains(b))
+                    {
+                        a.Neighbors.Add(b);
+                        a.EdgeLabels.Add(bond.bondType);
+                    }
+                    if (!b.Neighbors.Contains(a))
+                    {
+                        b.Neighbors.Add(a);
+                        b.EdgeLabels.Add(bond.bondType);
+                    }
                 }
             }
             return nodes;
@@ -247,7 +408,16 @@ namespace InsideMatter.Puzzle
                 return result;
             }
             
-            // 5. Strukturelle Validierung (Isomorphie)
+            // 5. Prüfe Bindungstypen (Single/Double/Triple)
+            if (definition.requiredBonds != null && definition.requiredBonds.Count > 0)
+            {
+                if (!ValidateBondTypes(atoms, definition, result))
+                {
+                    return result;
+                }
+            }
+            
+            // 6. Strukturelle Validierung (Isomorphie mit Bindungstypen)
             if (definition.requiredBonds != null && definition.requiredBonds.Count > 0)
             {
                 var craftedGraph = BuildGraphFromAtoms(atoms);
@@ -267,6 +437,100 @@ namespace InsideMatter.Puzzle
             result.moleculeName = definition.moleculeName;
             
             return result;
+        }
+        
+        /// <summary>
+        /// Prüft ob die Bindungstypen (Einfach-/Doppel-/Dreifachbindung) korrekt sind
+        /// </summary>
+        private bool ValidateBondTypes(List<Atom> atoms, MoleculeDefinition definition, ValidationResult result)
+        {
+            if (MoleculeManager.Instance == null) return true;
+            
+            // Zähle die Bindungstypen im gebauten Molekül
+            var actualBondCounts = new Dictionary<BondType, int>
+            {
+                { BondType.Single, 0 },
+                { BondType.Double, 0 },
+                { BondType.Triple, 0 }
+            };
+            
+            // Sammle alle Bindungen die zu diesem Molekül gehören
+            var atomSet = new HashSet<Atom>(atoms);
+            var countedBonds = new HashSet<Bond>();
+            
+            foreach (var bond in MoleculeManager.Instance.Bonds)
+            {
+                if (atomSet.Contains(bond.AtomA) && atomSet.Contains(bond.AtomB) && !countedBonds.Contains(bond))
+                {
+                    countedBonds.Add(bond);
+                    if (actualBondCounts.ContainsKey(bond.Type))
+                    {
+                        actualBondCounts[bond.Type]++;
+                    }
+                }
+            }
+            
+            // Zähle die erwarteten Bindungstypen aus der Definition
+            var requiredBondCounts = new Dictionary<BondType, int>
+            {
+                { BondType.Single, 0 },
+                { BondType.Double, 0 },
+                { BondType.Triple, 0 }
+            };
+            
+            foreach (var bondReq in definition.requiredBonds)
+            {
+                if (requiredBondCounts.ContainsKey(bondReq.bondType))
+                {
+                    requiredBondCounts[bondReq.bondType]++;
+                }
+            }
+            
+            // Vergleiche
+            bool allCorrect = true;
+            
+            foreach (var kvp in requiredBondCounts)
+            {
+                int required = kvp.Value;
+                int actual = actualBondCounts[kvp.Key];
+                
+                if (required > 0 && actual != required)
+                {
+                    allCorrect = false;
+                    string bondTypeName = GetBondTypeName(kvp.Key);
+                    
+                    if (actual < required)
+                    {
+                        result.errors.Add($"  • Du brauchst noch {required - actual}x {bondTypeName}.");
+                    }
+                    else
+                    {
+                        result.errors.Add($"  • Du hast {actual - required}x {bondTypeName} zu viel.");
+                    }
+                }
+            }
+            
+            if (!allCorrect)
+            {
+                result.isValid = false;
+                result.errors.Insert(0, "Die Bindungstypen stimmen nicht!");
+            }
+            
+            return allCorrect;
+        }
+        
+        /// <summary>
+        /// Gibt den deutschen Namen für einen Bindungstyp zurück
+        /// </summary>
+        private string GetBondTypeName(BondType type)
+        {
+            switch (type)
+            {
+                case BondType.Single: return "Einfachbindung";
+                case BondType.Double: return "Doppelbindung";
+                case BondType.Triple: return "Dreifachbindung";
+                default: return type.ToString();
+            }
         }
         
         /// <summary>

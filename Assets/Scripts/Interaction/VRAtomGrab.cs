@@ -507,10 +507,52 @@ namespace InsideMatter.Interaction
                 rb.isKinematic = true;
             }
             
+            // BUGFIX: Wenn dieses Atom losgelassen wird, müssen alle verbundenen Atome
+            // die noch gegriffen sind, ihr Molekül-Tracking neu initialisieren!
+            // Sonst kann man die Bindung "lang ziehen".
+            NotifyConnectedGrabbedAtomsToReinitialize();
+            
             // Tracking zurücksetzen
             nearbyAtom = null;
             
             UnityEngine.Debug.Log($"VR Released atom: {atom?.element ?? "Unknown"}");
+        }
+        
+        /// <summary>
+        /// Benachrichtigt alle verbundenen Atome die noch gegriffen sind,
+        /// ihr Molekül-Tracking neu zu initialisieren.
+        /// </summary>
+        private void NotifyConnectedGrabbedAtomsToReinitialize()
+        {
+            if (atom == null) return;
+            
+            // Finde alle verbundenen Atome
+            var connectedAtoms = GetAllConnectedAtoms(atom);
+            
+            foreach (var connectedAtom in connectedAtoms)
+            {
+                if (connectedAtom == atom) continue;
+                
+                var otherGrab = connectedAtom.GetComponent<VRAtomGrab>();
+                if (otherGrab != null && otherGrab.IsGrabbed)
+                {
+                    // Das andere Atom ist noch gegriffen - es muss sein Tracking aktualisieren
+                    otherGrab.ReinitializeMoleculeTracking();
+                    UnityEngine.Debug.Log($"Reinitialized tracking for still-grabbed atom: {connectedAtom.element}");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Öffentliche Methode um Molekül-Tracking von außen neu zu initialisieren.
+        /// Wird aufgerufen wenn ein verbundenes Atom losgelassen wird.
+        /// </summary>
+        public void ReinitializeMoleculeTracking()
+        {
+            if (isGrabbed)
+            {
+                InitializeMoleculeTracking();
+            }
         }
 
 
